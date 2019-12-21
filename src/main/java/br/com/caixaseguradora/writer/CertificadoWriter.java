@@ -20,6 +20,7 @@ import br.com.caixaseguradora.vo.Endereco;
 import br.com.caixaseguradora.vo.EnderecoQualificador;
 import br.com.caixaseguradora.vo.EstruturaComercial;
 import br.com.caixaseguradora.vo.IdentificacaoExterna;
+import br.com.caixaseguradora.vo.Imovel;
 import br.com.caixaseguradora.vo.Instituicao;
 import br.com.caixaseguradora.vo.ItensSegurado;
 import br.com.caixaseguradora.vo.Mensagem;
@@ -92,7 +93,7 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 		  mensagem.setVigenciaContrato(vigenciaContrato);
 		  
 		  
-		  //mensagem.setItensSegurados(new ArrayList<ItensSegurado>());
+		  mensagem.setItensSegurados(new ArrayList<ItensSegurado>());
 		  DadosHabitacional dadosHabitacional = new DadosHabitacional();
 		  //TODO Falta preencher numero do certicado, JSON não possui campo
 		  DadosFinanciamento dadosFinanciamento = new DadosFinanciamento();
@@ -197,16 +198,33 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 		  }
 		  for (Segurado seg: certificado.getSegurados()) {
 			  ItensSegurado itensSegurado = new ItensSegurado();
+			  itensSegurado.setTipoItemSegurado("HABITACIONAL");
 			  Beneficiarios beneficiarios = new Beneficiarios();
+			  beneficiarios.setPercentualParticipacao(seg.getPctPactuacao().toString());
 			  Pessoa pessoa = new Pessoa();
 			  pessoa.setNome(seg.getNomRazSocial());
 			  PessoaId identificacao = new PessoaId();		
-			  identificacao.setTipo(tipo);
+			  identificacao.setTipo(seg.getCpfCnpjSegurado().toString());
 			  pessoa.setIdentificacao(identificacao);
 			  
 			  beneficiarios.setPessoa(pessoa);
 			  itensSegurado.setBeneficiarios(beneficiarios);
 			  
+			  if(itensSegurado.getImovel() == null) {
+				  itensSegurado.setImovel(new Imovel());
+			  }
+			  Endereco endereco = new Endereco();
+			  endereco.setLogradouro(certificado.getNomLogradouroSegurado());
+			  endereco.setNumero(certificado.getNumLogradouroSegurado());
+			  endereco.setBairro(certificado.getNomBairroSegurado());
+			  endereco.setCep(certificado.getCodCepSegurado());
+			  endereco.setEstado(certificado.getCodUfSegurado());
+			  itensSegurado.getImovel().setEndereco(endereco);
+			  
+			  DadosHabitacional dadosHabitacional = new DadosHabitacional();
+			  dadosHabitacional.setTipo("IMOVEL");
+			  dadosHabitacional.setDataAverbacao(Util.dateToStringUtc(certificado.getDtaAverbacao()));
+			  itensSegurado.setDadosHabitacional(dadosHabitacional);  
 			  mensagem.getItensSegurados().add(itensSegurado);
 			
 		  }

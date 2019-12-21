@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:batch="http://www.springframework.org/schema/batch" 
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch 
+		http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util 
+		http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		">
+        
+	<import resource="../config/context.xml" />
+	<import resource="../config/database.xml" />
+
+	<bean id="CertificadoReader" class="org.springframework.batch.item.database.JdbcCursorItemReader" scope="step">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql" value="SELECT DISTINCT A.COD_PROC_SUSEP, A.NUM_APOLICE,OC.NUM_CERTIFICADO, CS.NUM_CONTRATO,OC.DTA_EMISSAO, OC.DTA_INI_VIGENCIA, OC.DTA_FIM_VIGENCIA,
+					CT.NUM_CONTRATO_TERC, ct.NUM_DV_CONTR_TERC,
+					ARP.NOM_RAZ_SOCIAL AS NOME_REMUNERADO, AR.COD_REMUNERADO, AR.COD_SUSEP,
+					PE.NOM_RAZ_SOCIAL AS NOME_ESTIPULANTE, PE.NUM_CPF_CNPJ AS CPF_CNPJ_ESTIP, ENDER.NOM_LOGRADOURO AS NOM_LOGRADOURO_ESTIP, ENDER.NUM_LOGRADOURO AS NUM_LOGRADOURO_ESTIP,
+					ENDER.NOM_BAIRRO AS NOM_BAIRRO_ESTIP, ENDER.NOM_CIDADE AS NOM_CIDADE_ESTIP, ENDER.COD_CEP AS COD_CEP_ESTIP, ENDER.COD_UF AS COD_UF_ESTIP,
+					E.NUM_ENDERECO AS NUM_ENDERECO_SEGURADO, E.NOM_LOGRADOURO AS NOM_LOGRADOURO_SEGURADO, E.NUM_LOGRADOURO AS NUM_LOGRADOURO_SEGURADO, 
+					E.NOM_BAIRRO AS NOM_BAIRRO_SEGURADO, E.NOM_CIDADE AS NOM_CIDADE_SEGURADO, E.COD_CEP AS COD_CEP_SEGURADO, E.COD_UF AS COD_UF_SEGURADO, 'IMOVEL' AS BEM_SEGURADO,
+					OC.VLR_IMP_SEG_MIP, OC.VLR_IMP_SEG_DFI, OC.VLR_IMP_SEG_DFC, OC.VLR_PREMIO_MIP, OC.VLR_PREMIO_DFI,OC.VLR_PREMIO_DFC, OC.VLR_IOF_MIP, OC.VLR_IOF_DFI, OC.VLR_IOF_DFC,
+					(OC.VLR_PREMIO_MIP + OC.VLR_PREMIO_DFI + OC.VLR_PREMIO_DFC + OC.VLR_IOF_MIP + OC.VLR_IOF_DFI + OC.VLR_IOF_DFC) AS PREMIO_TOTAL,
+					OC.VLR_CESH,  OC.SEQ_OBJ_CERTIF,  DF.IND_TP_PAGAMENTO, DF.IND_PERIODICIDADE_COBR, CS.QTD_MESES_CONTRATO,
+					RAMO.NUM_RAMO, FONTE.COD_FONTE,  CS.DTA_AVERBACAO, PE.STA_PESSOA
+					FROM SEGUROS.SX_OBJ_CERTIF OC,
+					SEGUROS.SX_CONTR_SEGURO CS,	
+					SEGUROS.SX_CONTR_TERC CT,	
+					SEGUROS.SX_ORIGEM_CONTRATO O,
+					SEGUROS.SX_APOLICE A, 			
+					SEGUROS.SX_APOL_FINANC DF, 		
+					SEGUROS.SX_PESSOA PE, 			
+					SEGUROS.SX_PESSOA_ENDERECO PEND, 
+					SEGUROS.SX_ENDERECO ENDER, 		
+					SEGUROS.SX_OBJ_CERTIF_PES OCP, 	
+					SEGUROS.SX_OBJ_PESSOA OP, 		
+					SEGUROS.SX_PESSOA P, 			
+					SEGUROS.SX_OBJ_ENDERECO OE, 		
+					SEGUROS.SX_ENDERECO E, 			
+					SEGUROS.SX_APOL_REMUNERA AR, 	
+					SEGUROS.SX_PESSOA ARP, 			
+					SEGUROS.SX_PRODUTO PROD ,		
+					SEGUROS.SX_RAMO RAMO, 			
+					SEGUROS.FONTES FONTE
+					WHERE
+					OC.NUM_CONTRATO = CS.NUM_CONTRATO
+					AND CS.NUM_CONTRATO = CT.NUM_CONTRATO
+					AND CT.NUM_ORI_CONTRATO = O.NUM_ORI_CONTRATO
+					AND O.SEQ_APOLICE = A.SEQ_PROP_APOL
+					AND A.SEQ_PROP_APOL = DF.SEQ_APOLICE
+					AND O.NUM_PES_ESTIP = PE.NUM_PESSOA
+					AND PE.NUM_PESSOA = PEND.NUM_PESSOA AND PEND.COD_FIN_ENDERECO = 4
+					AND ENDER.NUM_ENDERECO = PEND.NUM_ENDERECO
+					AND OC.NUM_CONTRATO = OCP.NUM_CONTRATO 
+					AND OC.NUM_CERTIFICADO = OCP.NUM_CERTIFICADO 
+					AND OC.SEQ_OBJ_CERTIF = OCP.SEQ_OBJ_CERTIF
+					AND OCP.NUM_CONTRATO = OP.NUM_CONTRATO 
+					AND OCP.NUM_PESSOA = OP.NUM_PESSOA AND OCP.NUM_PESSOA = OP.NUM_PESSOA
+					AND OP.NUM_PESSOA = P.NUM_PESSOA
+					AND CS.NUM_CONTRATO = OE.NUM_CONTRATO AND OE.COD_TP_ENDERECO = 1
+					AND E.NUM_ENDERECO = OE.NUM_ENDERECO
+					AND A.SEQ_PROP_APOL = AR.SEQ_APOLICE  AND AR.COD_TP_REMUNERA = 2
+					AND AR.NUM_PES_REMUNERA = ARP.NUM_PESSOA		
+					AND O.COD_PRODUTO = PROD.COD_PRODUTO
+					AND PROD.NUM_RAMO = RAMO.NUM_RAMO
+					AND A.COD_FONTE = FONTE.COD_FONTE
+					AND OC.STA_CERTIFICADO = 'A'
+					AND CS.DTA_AVERBACAO BETWEEN #{jobParameters['dtaAverbacaoInicial']} AND #{jobParameters['dtaAverbacaoFinal']} WITH UR" />
+		<property name="rowMapper">
+			<bean class="br.com.caixaseguradora.rowmapper.CertificadoRowMapper" />
+		</property>
+	</bean>
+
+	<job id="certificadoJob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="step1" >
+			<tasklet>
+<!-- 				<chunk reader="CertificadoReader"  writer="itemWriter" commit-interval="1" /> -->
+				<chunk reader="CertificadoReader" writer="certificadoBDWriter"  commit-interval="1"/>
+				<transaction-attributes isolation="READ_COMMITTED" />                          
+			</tasklet>
+		</step>
+	</job>
+
+	<bean id="notWriter" class="br.com.caixaseguradora.writer.NoOpItemWriter">
+	</bean>
+	
+	<bean id="certificadoBDWriter" class="br.com.caixaseguradora.writer.CertificadoWriter">
+	    <property name="dao" ref="certificadoDAO" />
+	</bean>
+        
+  	<bean id="certificadoDAO" class="br.com.caixaseguradora.dao.impl.CertificadoDAOImpl">
+  		<property name="dataSource" ref="dataSource" />
+  	</bean> 
+
+
+	<bean id="itemWriter" class="org.springframework.batch.item.xml.StaxEventItemWriter">
+		<property name="resource" value="file:xml/outputs/certificado.xml" />
+		<property name="marshaller" ref="certificadoUnmarshaller" />
+		<property name="rootTagName" value="certificado" />
+	</bean>
+	
+	<bean id="certificadoUnmarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
+		<property name="aliases">
+			<util:map id="aliases">
+				<entry key="certificado" value="br.com.caixaseguradora.vo.Certificado" />
+			</util:map>
+		</property>
+	</bean>
+	
+</beans>

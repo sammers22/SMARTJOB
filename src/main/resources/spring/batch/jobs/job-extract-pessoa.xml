@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:batch="http://www.springframework.org/schema/batch" 
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch 
+		http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util 
+		http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		">
+        
+	<import resource="../config/context.xml" />
+	<import resource="../config/database.xml" />
+
+	<bean id="itemReader" class="org.springframework.batch.item.database.JdbcCursorItemReader" scope="step">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql" value="SELECT P.NUM_PESSOA, P.NUM_CPF_CNPJ, P.NOM_RAZ_SOCIAL, P.IND_TP_PESSOA, P.STA_PESSOA, P.COD_EXTERNO, P.COD_INTEGRACAO, P.DTA_CADASTRAMENTO FROM SEGUROS.SX_PESSOA P, SEGUROS.SX_PESSOA_ENDERECO PEND WHERE PEND.NUM_PESSOA = P.NUM_PESSOA AND PEND.COD_FIN_ENDERECO = 4 WITH UR" />
+		<property name="rowMapper">
+			<bean class="com.mkyong.PessoaRowMapper" />
+		</property>
+	</bean>
+
+	<bean id="pagingItemReader" class="org.springframework.batch.item.database.JdbcPagingItemReader" scope="step">
+		<property name="dataSource" ref="dataSource" />
+		<property name="queryProvider">
+			<bean
+				class="org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean">
+				<property name="dataSource" ref="dataSource" />
+<!-- 				<property name="selectClause" value="select NUM_PESSOA, NUM_CPF_CNPJ, NOM_RAZ_SOCIAL, IND_TP_PESSOA, STA_PESSOA, COD_EXTERNO, COD_INTEGRACAO, DTA_CADASTRAMENTO" /> -->
+				<property name="fromClause" value="from SEGUROS.SX_PESSOA" />
+<!-- 				<property name="whereClause" value="where user_login=:name" /> -->
+				<property name="sortKey" value="NUM_PESSOA" />
+			</bean>
+		</property>
+<!-- 		<property name="parameterValues"> -->
+<!-- 			<map> -->
+<!-- 				<entry key="name" value="#{jobParameters['name']}" /> -->
+<!-- 			</map> -->
+<!-- 		</property> -->
+		<property name="pageSize" value="10" />
+		<property name="rowMapper">
+			<bean class="com.mkyong.PessoaRowMapper" />
+		</property>
+	</bean>
+
+	<job id="pessoaJob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="step1">
+			<tasklet>
+<!-- 				<chunk reader="itemReader" writer="pessoaBDWriter" commit-interval="1" /> -->
+				<chunk reader="itemReader" writer="itemWriter" commit-interval="1" />
+				<transaction-attributes isolation="READ_COMMITTED" />                          
+			</tasklet>
+		</step>
+	</job>
+
+	<bean id="pessoaBDWriter" class="br.com.caixaseguradora.writer.PessoaWriter">
+	    <property name="dao" ref="pessoaDAO" />
+	</bean>
+        
+  	<bean id="pessoaDAO" class="br.com.caixaseguradora.dao.impl.PessoaDAOImpl">
+  		<property name="dataSource" ref="dataSource" />
+  	</bean> 
+
+
+	<bean id="itemWriter" class="org.springframework.batch.item.xml.StaxEventItemWriter">
+		<property name="resource" value="file:xml/outputs/pessoa.xml" />
+		<property name="marshaller" ref="pessoaUnmarshaller" />
+		<property name="rootTagName" value="pessoa" />
+	</bean>
+	
+	<bean id="pessoaUnmarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
+		<property name="aliases">
+			<util:map id="aliases">
+				<entry key="pessoa" value="com.mkyong.Pessoa" />
+			</util:map>
+		</property>
+	</bean>
+
+	<!-- csv file writer -->
+	<bean id="flatFileItemWriter" class="org.springframework.batch.item.file.FlatFileItemWriter">
+		<property name="resource" value="file:csv/outputs/pessoa_all.csv" />
+		<property name="appendAllowed" value="true" />
+		<property name="lineAggregator">
+			<bean
+				class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+				<property name="delimiter" value="," />
+				<property name="fieldExtractor">
+					<bean
+						class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+						<property name="names" value="numPessoa,numCpfCnpj,nomRazSocial, indTpPessoa, staPessao, codExterno, codIntegracao, dtaCadastramento" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	
+</beans>

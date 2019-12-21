@@ -229,4 +229,11 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 			
 		  }
 	  }
+	  
+	  private void preencherCoberturas(Mensagem mensagem, Certificado certificado) {
+		  if(mensagem.getItensSegurados() == null) {
+			  mensagem.setItensSegurados( new ArrayList<ItensSegurado>());
+		  }
+		  
+	  }
 }

@@ -282,6 +282,10 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 
 	  }
 	  
+	  private void preencherPagamento() {
+		  
+	  }
+	  
 	  private Cobertura getMip(Certificado certificado) {
 		  Cobertura  coberMip = new Cobertura();
 		  RamoCaixaSeguradora ramoCaixaSeguradora = new RamoCaixaSeguradora();

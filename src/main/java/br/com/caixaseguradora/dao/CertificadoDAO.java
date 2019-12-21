@@ -7,4 +7,5 @@ import br.com.caixaseguradora.vo.Segurado;
 public interface CertificadoDAO {
 
 	public List<Segurado> recuperarSegurados(Integer numContrato, Long numCertificado, Integer seqCertificado);
+	public Integer recuperarRamo(Integer numRamo, Integer numCobertura);
 }

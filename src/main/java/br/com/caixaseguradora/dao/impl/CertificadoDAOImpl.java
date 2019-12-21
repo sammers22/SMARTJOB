@@ -40,4 +40,13 @@ public class CertificadoDAOImpl implements CertificadoDAO {
 		 return seg;
 
 	}
+	
+	public Integer recuperarRamo(Integer numRamo, Integer numCobertura) {
+		String sql = "SELECT NUM_RAMO_CONTABIL FROM SEGUROS.SX_RAMO_COBER_CONTABIL "
+				+" WHERE NUM_RAMO = "+numRamo
+				+" AND NUM_COBERTURA"+numCobertura;
+		Integer ramo = simpleJdbcTemplate.queryForInt(sql);
+		
+		return ramo;
+	}
 }

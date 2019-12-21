@@ -53,6 +53,10 @@ public class Certificado {
 	private Integer	codFonte;
 	private Date	dtaAverbacao;
 	private String	staPessoa;
+	private Integer ramoDfi;
+	private Integer ramoMpi;
+	private Integer ramoDfc;
+	private boolean certificadoDFC;
 	
 	private List<Segurado> segurados;
 	
@@ -343,6 +347,32 @@ public class Certificado {
 	}
 	public void setSegurados(List<Segurado> segurados) {
 		this.segurados = segurados;
+	}
+	
+	
+	public Integer getRamoDfi() {
+		return ramoDfi;
+	}
+	public void setRamoDfi(Integer ramoDfi) {
+		this.ramoDfi = ramoDfi;
+	}
+	public Integer getRamoMpi() {
+		return ramoMpi;
+	}
+	public void setRamoMpi(Integer ramoMpi) {
+		this.ramoMpi = ramoMpi;
+	}
+	public Integer getRamoDfc() {
+		return ramoDfc;
+	}
+	public void setRamoDfc(Integer ramoDfc) {
+		this.ramoDfc = ramoDfc;
+	}
+	public boolean isCertificadoDFC() {
+		return certificadoDFC;
+	}
+	public void setCertificadoDFC(boolean certificadoDFC) {
+		this.certificadoDFC = certificadoDFC;
 	}
 	@Override
 	public String toString() {

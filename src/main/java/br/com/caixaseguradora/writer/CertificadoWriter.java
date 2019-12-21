@@ -1,5 +1,6 @@
 package br.com.caixaseguradora.writer;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,16 +14,19 @@ import br.com.caixaseguradora.vo.Beneficiarios;
 import br.com.caixaseguradora.vo.Cabecalho;
 import br.com.caixaseguradora.vo.Certificado;
 import br.com.caixaseguradora.vo.Clientes;
+import br.com.caixaseguradora.vo.Cobertura;
 import br.com.caixaseguradora.vo.DadosFinanciamento;
 import br.com.caixaseguradora.vo.DadosHabitacional;
 import br.com.caixaseguradora.vo.Empresa;
 import br.com.caixaseguradora.vo.Endereco;
 import br.com.caixaseguradora.vo.EnderecoQualificador;
 import br.com.caixaseguradora.vo.EstruturaComercial;
+import br.com.caixaseguradora.vo.Franquia;
 import br.com.caixaseguradora.vo.IdentificacaoExterna;
 import br.com.caixaseguradora.vo.Imovel;
 import br.com.caixaseguradora.vo.Instituicao;
 import br.com.caixaseguradora.vo.ItensSegurado;
+import br.com.caixaseguradora.vo.LimiteIndenizacao;
 import br.com.caixaseguradora.vo.Mensagem;
 import br.com.caixaseguradora.vo.MensagemDados;
 import br.com.caixaseguradora.vo.MensagemId;
@@ -30,7 +34,10 @@ import br.com.caixaseguradora.vo.Oferta;
 import br.com.caixaseguradora.vo.Periodicidade;
 import br.com.caixaseguradora.vo.Pessoa;
 import br.com.caixaseguradora.vo.PessoaId;
+import br.com.caixaseguradora.vo.Premio;
+import br.com.caixaseguradora.vo.RamoCaixaSeguradora;
 import br.com.caixaseguradora.vo.Segurado;
+import br.com.caixaseguradora.vo.Tributacao;
 import br.com.caixaseguradora.vo.VigenciaContrato;
 
 @SuppressWarnings("unused")
@@ -40,8 +47,25 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 	  
 	  public void write(List<? extends Certificado> certificados) {
 	    for (Certificado cert : certificados) {
+	    	if((cert.getVlrImpSegDfc() == null || cert.getVlrImpSegDfc().compareTo(BigDecimal.ZERO) == 0)
+	    			&& (cert.getVlrPremioDfc() == null || cert.getVlrPremioDfc().compareTo(BigDecimal.ZERO) == 0)
+	    					&& (cert.getVlrIofDfc() == null || cert.getVlrIofDfc().compareTo(BigDecimal.ZERO) == 0)) {
+	    		cert.setCertificadoDFC(false);
+	    	}else {
+	    		cert.setCertificadoDFC(true);
+	    	}
+	    	if(cert.isCertificadoDFC() == true) {
+	    		cert.setRamoDfc(14);
+	    	}else {
+		    	cert.setRamoMpi(dao.recuperarRamo(cert.getNumRamo(), 1));
+		    	cert.setRamoDfi(dao.recuperarRamo(cert.getNumRamo(), 2));
+	    	}
+	    	
 	    	List<Segurado> segurados = dao.recuperarSegurados(cert.getNumContrato(), cert.getNumCertificado(), cert.getSeqObjCertif());
 	    	cert.setSegurados(segurados);
+
+	    	
+	    	
 	    	System.out.println(cert);
 	    }
 	  }
@@ -57,6 +81,7 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 		  preencherDadosSeguradora(mensagem, certificado);
 		  preencherDadosCorretor(mensagem, certificado);
 		  preencherDadosEstipulante(mensagem, certificado);
+		  preencherCoberturas(mensagem, certificado);
 		  
 		  return null;
 	  }
@@ -234,6 +259,85 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 		  if(mensagem.getItensSegurados() == null) {
 			  mensagem.setItensSegurados( new ArrayList<ItensSegurado>());
 		  }
+		  ItensSegurado itensSegurado = new ItensSegurado();
+		  itensSegurado.setCoberturas(new ArrayList<Cobertura>());
+		  
+		  if(certificado.isCertificadoDFC()) {
+			  
+		  }else {
+			  //MIP
+			  Cobertura coberMip = getMip(certificado);
+			  itensSegurado.getCoberturas().add(coberMip);
+			  
+			  //DFI
+			  Cobertura coberDfi = getDfi(certificado);
+			  itensSegurado.getCoberturas().add(coberDfi);
+		  }
+		  
+		  mensagem.getItensSegurados().add(itensSegurado);
+
+		  Premio premio = new Premio();
+		  premio.setValor(certificado.getPremioTotal().toString());
+		  mensagem.setPremio(premio);
+
+	  }
+	  
+	  private Cobertura getMip(Certificado certificado) {
+		  Cobertura  coberMip = new Cobertura();
+		  RamoCaixaSeguradora ramoCaixaSeguradora = new RamoCaixaSeguradora();
+		  ramoCaixaSeguradora.setCodigo(certificado.getRamoMpi().toString());
+		  coberMip.setRamoCaixaSeguradora(ramoCaixaSeguradora);
+		  
+		  coberMip.setDescricao("MIP/ Morte Inval. Permanente");
+		  coberMip.setValorCustoEfetivoSH(certificado.getVlrCesh().toString());
+		  
+		  LimiteIndenizacao limiteIndenizacao = new LimiteIndenizacao();
+		  limiteIndenizacao.setValorMaximo(certificado.getVlrImpSegMip().toString());
+		  coberMip.setLimiteIndenizacao(limiteIndenizacao);
+		  
+		  coberMip.setPremioLiquidoCobertura(certificado.getVlrPremioMip().toString());
+		  coberMip.setAdicionalFracionamentoCobertura(BigDecimal.ZERO.toString());
+		  coberMip.setTributacao(new ArrayList<Tributacao>());
+		  
+		  Tributacao tributacao = new Tributacao();
+		  tributacao.setValor(certificado.getVlrIofMip().toString());
+		  coberMip.getTributacao().add(tributacao);
+		  
+		  coberMip.setPremioTotalCobertura((certificado.getVlrPremioMip().add(certificado.getVlrIofMip())).toString());
+		  
+		  Franquia franquia = new Franquia();
+		  franquia.setValor(BigDecimal.ZERO.toString());
+		  coberMip.setFranquia(franquia);
+		  
+		  return coberMip;
+	  }
+	  
+	  private Cobertura getDfi(Certificado certificado) {
+		  Cobertura  coberDfi = new Cobertura();
+		  RamoCaixaSeguradora ramoCaixaSeguradoraDfi = new RamoCaixaSeguradora();
+		  ramoCaixaSeguradoraDfi.setCodigo(certificado.getRamoDfi().toString());
+		  coberDfi.setRamoCaixaSeguradora(ramoCaixaSeguradoraDfi);
+		  
+		  coberDfi.setDescricao("DFI/Dano Físico ao Imóvel");
+		  
+		  LimiteIndenizacao limiteIndenizacaoDfi = new LimiteIndenizacao();
+		  limiteIndenizacaoDfi.setValorMaximo(certificado.getVlrImpSegDfi().toString());
+		  coberDfi.setLimiteIndenizacao(limiteIndenizacaoDfi);
+		  
+		  coberDfi.setPremioLiquidoCobertura(certificado.getVlrPremioDfi().toString());
+		  coberDfi.setAdicionalFracionamentoCobertura(BigDecimal.ZERO.toString());
+		  coberDfi.setTributacao(new ArrayList<Tributacao>());
+		  
+		  Tributacao tributacaoDfi = new Tributacao();
+		  tributacaoDfi.setValor(certificado.getVlrIofDfi().toString());
+		  coberDfi.getTributacao().add(tributacaoDfi);
+		  
+		  coberDfi.setPremioTotalCobertura((certificado.getVlrPremioDfi().add(certificado.getVlrIofDfi())).toString());
+		  
+		  Franquia franquiaDfi = new Franquia();
+		  franquiaDfi.setValor(BigDecimal.ZERO.toString());
+		  coberDfi.setFranquia(franquiaDfi);
+		  return coberDfi;
 		  
 	  }
 }

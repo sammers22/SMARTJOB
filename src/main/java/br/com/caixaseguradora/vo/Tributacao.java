@@ -40,4 +40,22 @@ public class Tributacao implements Serializable{
 		return percentual;
 	}
 
+	public void setCodigo(String codigo) {
+		this.codigo = codigo;
+	}
+
+	public void setTributo(String tributo) {
+		this.tributo = tributo;
+	}
+
+	public void setValor(String valor) {
+		this.valor = valor;
+	}
+
+	public void setPercentual(String percentual) {
+		this.percentual = percentual;
+	}
+	
+	
+
 }

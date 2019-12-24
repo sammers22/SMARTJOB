@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.math.Fraction;
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
+
+import com.google.gson.Gson;
 
 import br.com.caixaseguradora.dao.CertificadoDAO;
 import br.com.caixaseguradora.util.Util;
@@ -21,15 +24,18 @@ import br.com.caixaseguradora.vo.Empresa;
 import br.com.caixaseguradora.vo.Endereco;
 import br.com.caixaseguradora.vo.EnderecoQualificador;
 import br.com.caixaseguradora.vo.EstruturaComercial;
+import br.com.caixaseguradora.vo.FormaPagamento;
 import br.com.caixaseguradora.vo.Franquia;
 import br.com.caixaseguradora.vo.IdentificacaoExterna;
 import br.com.caixaseguradora.vo.Imovel;
 import br.com.caixaseguradora.vo.Instituicao;
 import br.com.caixaseguradora.vo.ItensSegurado;
 import br.com.caixaseguradora.vo.LimiteIndenizacao;
+import br.com.caixaseguradora.vo.MapaDados;
 import br.com.caixaseguradora.vo.Mensagem;
 import br.com.caixaseguradora.vo.MensagemDados;
 import br.com.caixaseguradora.vo.MensagemId;
+import br.com.caixaseguradora.vo.ObjetoEnvio;
 import br.com.caixaseguradora.vo.Oferta;
 import br.com.caixaseguradora.vo.Periodicidade;
 import br.com.caixaseguradora.vo.Pessoa;
@@ -64,9 +70,8 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 	    	List<Segurado> segurados = dao.recuperarSegurados(cert.getNumContrato(), cert.getNumCertificado(), cert.getSeqObjCertif());
 	    	cert.setSegurados(segurados);
 
-	    	
-	    	
 	    	System.out.println(cert);
+	    	System.out.println(eventoCertificadoMipDfi(cert));
 	    }
 	  }
 	  
@@ -74,19 +79,24 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 	    this.dao = dao;
 	  }
 	  
-	  private String eventoCertificado(Certificado certificado) {
+	  private String eventoCertificadoMipDfi(Certificado certificado) {
+		  ObjetoEnvio obj = new ObjetoEnvio();
 		  Mensagem mensagem = new Mensagem();
-		  
+		  obj.setCabecalho(cabecalhoEvento(mensagem));
 		  preencherCabecalhoCertif(mensagem, certificado);		  
 		  preencherDadosSeguradora(mensagem, certificado);
 		  preencherDadosCorretor(mensagem, certificado);
 		  preencherDadosEstipulante(mensagem, certificado);
+		  preencherDadosSegurado(mensagem, certificado);
 		  preencherCoberturas(mensagem, certificado);
-		  
-		  return null;
+		  preencherPagamento(mensagem, certificado);
+		  obj.setMensagem(mensagem);
+		  Gson gson = new Gson();
+		  String json = gson.toJson(obj);
+		  return json;
 	  }
 	  
-	  private void cabecalhoEvento(Mensagem mensagem) {
+	  private Cabecalho cabecalhoEvento(Mensagem mensagem) {
 		  Cabecalho cabecalho = new Cabecalho();
 		  cabecalho.setVersao("2.0");
 		  cabecalho.setOrigem("smart");
@@ -98,7 +108,7 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 		  cabecalho.setCodigoEvento("3.1.1");
 		  cabecalho.setEvento("Apolice emitida");
 		  cabecalho.setGeradorEvento("smart");
-		  mensagem.setCabecalho(cabecalho);
+		  return cabecalho;
 	  }
 	  
 	  private void preencherCabecalhoCertif(Mensagem mensagem, Certificado certificado) {
@@ -115,25 +125,36 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 		  VigenciaContrato vigenciaContrato = new VigenciaContrato();
 		  vigenciaContrato.setInicio(Util.dateToStringUtc(certificado.getDtaIniVigencia()));
 		  vigenciaContrato.setTermino(Util.dateToStringUtc(certificado.getDtaFimVigencia()));
+		  Periodicidade periodicidade = new Periodicidade();
+		  periodicidade.setQuantidade(certificado.getQtdMesesContrato().toString());
+		  periodicidade.setUnidade(certificado.getDesPeriodicidadeCobr());
+		  periodicidade.setDescricao(certificado.getDesPeriodicidadeCobr());
+		  vigenciaContrato.setPeriodicidade(periodicidade);
+		  
 		  mensagem.setVigenciaContrato(vigenciaContrato);
 		  
-		  
-		  mensagem.setItensSegurados(new ArrayList<ItensSegurado>());
+		  if(mensagem.getItensSegurados()== null) {
+			  mensagem.setItensSegurados(new ArrayList<ItensSegurado>());
+
+		  }
+		  ItensSegurado itensSegurado = new ItensSegurado();
 		  DadosHabitacional dadosHabitacional = new DadosHabitacional();
 		  //TODO Falta preencher numero do certicado, JSON não possui campo
 		  DadosFinanciamento dadosFinanciamento = new DadosFinanciamento();
 		  dadosFinanciamento.setNumero(certificado.getNumContratoTerc().toString());
 		  dadosFinanciamento.setDigitoVerificador(certificado.getNumDvContrTerc());
 		  dadosHabitacional.setDadosFinanciamento(dadosFinanciamento);
-		  mensagem.getItensSegurados().get(0).setDadosHabitacional(dadosHabitacional);
+		  itensSegurado.setDadosHabitacional(dadosHabitacional);
+		  mensagem.getItensSegurados().add(itensSegurado);
 		  
 		  Oferta oferta = new Oferta();
 		  oferta.setIdentificacaoExterna(new ArrayList<IdentificacaoExterna>());
-		  
+		  IdentificacaoExterna identificacaoExterna = new IdentificacaoExterna();
 		  Instituicao instituicao = new Instituicao();
 		  instituicao.setCodigoNegocio(certificado.getCodProcSusep());
-		  
-		  oferta.getIdentificacaoExterna().get(0).setInstituicao(instituicao);
+		  identificacaoExterna.setInstituicao(instituicao);
+		  oferta.getIdentificacaoExterna().add(identificacaoExterna);
+		  mensagem.setOferta(oferta);
 	  }
 	  
 	  private void preencherDadosSeguradora(Mensagem mensagem, Certificado certificado) {
@@ -159,7 +180,7 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 		  
 		  EnderecoQualificador qualificador = new EnderecoQualificador();
 		  qualificador.setCodigo("1");
-		  qualificador.setValor("Residêncial");
+		  qualificador.setValor("COBR");
 		  
 		  endereco.setQualificador(qualificador);
 		  empresa.setEndereco(endereco);
@@ -282,7 +303,13 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 
 	  }
 	  
-	  private void preencherPagamento() {
+	  private void preencherPagamento(Mensagem mensagem, Certificado certificado) {
+		  MapaDados mapaDados = new MapaDados();
+		  FormaPagamento formaPagamento = new FormaPagamento();
+		  formaPagamento.setDescricao(certificado.getDesTpPagamento());
+		  
+		  mapaDados.setFormaPagamento(formaPagamento);
+		  mensagem.setMapaDados(mapaDados);
 		  
 	  }
 	  

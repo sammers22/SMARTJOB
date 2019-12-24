@@ -69,12 +69,13 @@
 					AND PROD.NUM_RAMO = RAMO.NUM_RAMO
 					AND A.COD_FONTE = FONTE.COD_FONTE
 					AND OC.STA_CERTIFICADO = 'A'
-					AND CS.DTA_AVERBACAO BETWEEN #{jobParameters['dtaAverbacaoInicial']} AND #{jobParameters['dtaAverbacaoFinal']} WITH UR" />
+					AND CS.NUM_CONTRATO = 389 WITH UR
+					" />
 		<property name="rowMapper">
 			<bean class="br.com.caixaseguradora.rowmapper.CertificadoRowMapper" />
 		</property>
 	</bean>
-
+<!-- AND CS.DTA_AVERBACAO BETWEEN #{jobParameters['dtaAverbacaoInicial']} AND #{jobParameters['dtaAverbacaoFinal']} WITH UR -->
 	<job id="certificadoJob" xmlns="http://www.springframework.org/schema/batch">
 		<step id="step1" >
 			<tasklet>

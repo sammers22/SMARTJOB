@@ -30,8 +30,8 @@ public class App {
 
 			Job job = (Job) context.getBean("certificadoJob");
 			JobParameters param = new JobParametersBuilder()
-					.addString("dtaAverbacaoInicial", "'2019-10-14'")
-					.addString("dtaAverbacaoFinal", "'2019-10-16'").toJobParameters();
+					.addString("dtaAverbacaoInicial", "'2011-06-16'")
+					.addString("dtaAverbacaoFinal", "'2011-06-18'").toJobParameters();
 			JobExecution execution = getJobExecution(job, param);
 			System.out.println("Exit Status : " + execution.getStatus());
 			System.out.println("Exit Status : " + execution.getAllFailureExceptions());

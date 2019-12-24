@@ -56,6 +56,7 @@ public class CertificadoRowMapper implements RowMapper<Certificado> {
 		certificado.setVlrCesh(rs.getBigDecimal("VLR_CESH"));
 		certificado.setSeqObjCertif(rs.getInt("SEQ_OBJ_CERTIF"));
 		certificado.setIndTpPagamento(rs.getString("IND_TP_PAGAMENTO"));
+		
 		certificado.setIndPeriodicidadeCobr(rs.getInt("IND_PERIODICIDADE_COBR"));
 		certificado.setQtdMesesContrato(rs.getInt("QTD_MESES_CONTRATO"));
 		certificado.setNumRamo(rs.getInt("NUM_RAMO"));

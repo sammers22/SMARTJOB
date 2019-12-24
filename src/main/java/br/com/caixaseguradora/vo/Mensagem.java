@@ -10,7 +10,7 @@ public class Mensagem implements Serializable {
 	 */
 	private static final long serialVersionUID = 1147940908828587825L;
 
-	private Cabecalho cabecalho;
+	//private Cabecalho cabecalho;
 
 	private MensagemId identificacao;
 
@@ -36,11 +36,10 @@ public class Mensagem implements Serializable {
 		super();
 	}
 
-	public Mensagem(Cabecalho cabecalho, MensagemId identificacao, MensagemDados dados,
+	public Mensagem( MensagemId identificacao, MensagemDados dados,
 			VigenciaContrato vigenciaContrato, Oferta oferta, List<EstruturaComercial> estruturaComercial,
 			List<ItensSegurado> itensSegurados, Premio premio, Cobranca cobranca, MapaDados mapaDados) {
 		super();
-		this.cabecalho = cabecalho;
 		this.identificacao = identificacao;
 		this.dados = dados;
 		this.vigenciaContrato = vigenciaContrato;
@@ -50,14 +49,6 @@ public class Mensagem implements Serializable {
 		this.premio = premio;
 		this.cobranca = cobranca;
 		this.mapaDados = mapaDados;
-	}
-
-	public Cabecalho getCabecalho() {
-		return cabecalho;
-	}
-
-	public void setCabecalho(Cabecalho cabecalho) {
-		this.cabecalho = cabecalho;
 	}
 
 	public MensagemId getIdentificacao() {

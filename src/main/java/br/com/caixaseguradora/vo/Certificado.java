@@ -47,7 +47,9 @@ public class Certificado {
 	private BigDecimal	vlrCesh;
 	private Integer	seqObjCertif;
 	private String	indTpPagamento;
+	private String	desTpPagamento;
 	private Integer	indPeriodicidadeCobr;
+	private String	desPeriodicidadeCobr;
 	private Integer	qtdMesesContrato;
 	private Integer	numRamo;
 	private Integer	codFonte;
@@ -305,12 +307,48 @@ public class Certificado {
 	}
 	public void setIndTpPagamento(String indTpPagamento) {
 		this.indTpPagamento = indTpPagamento != null ? indTpPagamento.trim() : indTpPagamento;
+		if(indTpPagamento != null) {
+			if(indTpPagamento.equals("A")) {
+				setDesTpPagamento("Antecipado");				
+			}
+			if(indTpPagamento.equals("P")) {
+				setDesTpPagamento("Postecipado");				
+			}			
+		}else {
+			setDesTpPagamento("");							
+		}
+	}	
+	public String getDesTpPagamento() {
+		return desTpPagamento;
+	}
+	public void setDesTpPagamento(String desTpPagamento) {
+		this.desTpPagamento = desTpPagamento;
 	}
 	public Integer getIndPeriodicidadeCobr() {
 		return indPeriodicidadeCobr;
 	}
 	public void setIndPeriodicidadeCobr(Integer indPeriodicidadeCobr) {
 		this.indPeriodicidadeCobr = indPeriodicidadeCobr;
+		if(indPeriodicidadeCobr != null) {
+			if(indPeriodicidadeCobr.equals(1)) {
+				setDesPeriodicidadeCobr("À Vista");
+			}
+			if(indPeriodicidadeCobr.equals(2)) {
+				setDesPeriodicidadeCobr("Mensal");
+			}
+			if(indPeriodicidadeCobr.equals(3)) {
+				setDesPeriodicidadeCobr("Trimestral");
+			}
+			if(indPeriodicidadeCobr.equals(4)) {
+				setDesPeriodicidadeCobr("Anual");
+			}
+		}
+	}	
+	public String getDesPeriodicidadeCobr() {
+		return desPeriodicidadeCobr;
+	}
+	public void setDesPeriodicidadeCobr(String desPeriodicidadeCobr) {
+		this.desPeriodicidadeCobr = desPeriodicidadeCobr;
 	}
 	public Integer getQtdMesesContrato() {
 		return qtdMesesContrato;

@@ -13,25 +13,20 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class App {
-
 	
 	ApplicationContext context = new ClassPathXmlApplicationContext(jobArqXml());
 	
-
 	public static void main(String[] args) {
 		App obj = new App();
 		obj.run();
 	}
 
 	private void run() {
-		
-
 		try {
-
 			Job job = (Job) context.getBean("certificadoJob");
 			JobParameters param = new JobParametersBuilder()
-					.addString("dtaAverbacaoInicial", "'2011-06-16'")
-					.addString("dtaAverbacaoFinal", "'2011-06-18'").toJobParameters();
+					.addString("dtaAverbacaoInicial", "'2015-08-01'")
+					.addString("dtaAverbacaoFinal", "'2015-08-31'").toJobParameters();
 			JobExecution execution = getJobExecution(job, param);
 			System.out.println("Exit Status : " + execution.getStatus());
 			System.out.println("Exit Status : " + execution.getAllFailureExceptions());
@@ -45,7 +40,8 @@ public class App {
 	}
 	
 	private String[] jobArqXml() {
-		String[] springConfig = { "spring/batch/jobs/job-extract-certificado.xml" };
+		//String[] springConfig = { "spring/batch/jobs/job-extract-certificado.xml" };
+		String[] springConfig = { "spring/batch/jobs/job-extract-contratos-averbados.xml" };
 		return springConfig;
 	}
 	

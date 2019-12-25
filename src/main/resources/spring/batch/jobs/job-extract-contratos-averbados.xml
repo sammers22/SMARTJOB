@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:task="http://www.springframework.org/schema/task" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch 
+		http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util 
+		http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task-3.2.xsd">
+
+	<context:component-scan base-package="br.com" />
+
+	<import resource="../config/context.xml" />
+	<import resource="../config/database.xml" />
+
+	<bean id="contratoReader"
+		class="org.springframework.batch.item.database.JdbcCursorItemReader"
+		scope="step">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql"
+			value="SELECT ROT.NUM_CONTRATO
+							FROM SEGUROS.SX_REG_OPER_TERC ROT,
+							SEGUROS.SX_MOV_CONTROLE MC,
+							SEGUROS.SX_CONTR_TERC CT
+							WHERE ROT.SEQ_RECEBIMENTO = MC.SEQ_RECEBIMENTO
+							AND CT.NUM_CONTRATO = ROT.NUM_CONTRATO
+							AND CT.STA_CONTRATO_TERC = 'A'
+							AND ROT.COD_EVENTO = 001 AND MC.STA_CONTROLE_MOV >= 5
+							AND DTA_INI_COMPET BETWEEN #{jobParameters['dtaAverbacaoInicial']} AND #{jobParameters['dtaAverbacaoFinal']} WITH UR" />
+		<property name="rowMapper">
+			<bean
+				class="br.com.caixaseguradora.rowmapper.ContratosAverbadosRowMapper" />
+		</property>
+	</bean>
+
+	<job id="certificadoJob"
+		xmlns="http://www.springframework.org/schema/batch">
+		<step id="step1">
+			<tasklet>
+				<chunk reader="contratoReader" writer="contratoBDWriter"
+					commit-interval="1" />
+				<transaction-attributes
+					isolation="READ_COMMITTED" />
+			</tasklet>
+		</step>
+	</job>
+
+	<bean id="notWriter"
+		class="br.com.caixaseguradora.writer.NoOpItemWriter">
+	</bean>
+
+	<bean id="contratoBDWriter"
+		class="br.com.caixaseguradora.writer.ContratosAverbadosWriter">
+		<property name="dao" ref="certificadoDAO" />
+	</bean>
+
+	<bean id="certificadoDAO"
+		class="br.com.caixaseguradora.dao.impl.CertificadoDAOImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+
+</beans>

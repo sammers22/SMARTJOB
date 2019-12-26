@@ -2,6 +2,7 @@ package br.com.caixaseguradora.vo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 public class Segurado implements Serializable {
@@ -15,8 +16,10 @@ public class Segurado implements Serializable {
 	private Long	cpfCnpjSegurado;
 	private String	nomRazSocial;
 	private BigDecimal	pctPactuacao;
+	private Date dtaNascimento;
 	
 	private List<Telefone> telefones;
+	private List<String> emails;
 	
 	
 	public Segurado(String nomRazSocial, Long cpfCnpjSegurado, BigDecimal pctPactuacao) {
@@ -52,19 +55,29 @@ public class Segurado implements Serializable {
 	}
 	public void setPctPactuacao(BigDecimal pctPactuacao) {
 		this.pctPactuacao = pctPactuacao;
-	}
-			
+	}			
 	public List<Telefone> getTelefones() {
 		return telefones;
 	}
 	public void setTelefones(List<Telefone> telefones) {
 		this.telefones = telefones;
 	}
+	public List<String> getEmails() {
+		return emails;
+	}
+	public void setEmails(List<String> emails) {
+		this.emails = emails;
+	}
+	public Date getDtaNascimento() {
+		return dtaNascimento;
+	}
+	public void setDtaNascimento(Date dtaNascimento) {
+		this.dtaNascimento = dtaNascimento;
+	}
 	@Override
 	public String toString() {
-		return "Segurado [nomeSegurado=" + nomRazSocial + ", cpfCnpjSegurado=" + cpfCnpjSegurado + ", pctPactuacao="
-				+ pctPactuacao + "]";
-	}
-	
-	
+		return "Segurado [numPessoa=" + numPessoa + ", cpfCnpjSegurado=" + cpfCnpjSegurado + ", nomRazSocial="
+				+ nomRazSocial + ", pctPactuacao=" + pctPactuacao + ", telefones=" + telefones + ", emails=" + emails
+				+ "]";
+	}	
 }

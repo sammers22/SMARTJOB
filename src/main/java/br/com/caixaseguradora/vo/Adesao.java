@@ -77,8 +77,8 @@ public class Adesao implements Serializable{
 		this.valor = valor;
 	}
 
-	public void setMoeda(Moeda moedaObject) {
-		this.moeda = moedaObject;
+	public void setMoeda(Moeda moeda) {
+		this.moeda = moeda;
 	}
 
 	public void setMecanismo(Mecanismo mecanismo) {

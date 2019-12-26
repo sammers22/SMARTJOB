@@ -62,8 +62,12 @@ public class Certificado {
 	private Integer codProduto;
 	private Integer codGrupoSusep;
 	private String desProduto;
+	private Integer numDiaVencto;
+	private Integer qtdParcelaPagto;
 	private boolean certificadoDFC;
-	
+	private Integer numPesEstip;
+	private DadosBancariosDTO bancariosEstip;
+	private PremioEndosso premioEndosso;
 	private List<Segurado> segurados;
 	
 	public String getCodProcSusep() {
@@ -437,6 +441,36 @@ public class Certificado {
 	}
 	public void setDesProduto(String desProduto) {
 		this.desProduto = desProduto;
+	}
+	public Integer getNumDiaVencto() {
+		return numDiaVencto;
+	}
+	public void setNumDiaVencto(Integer numDiaVencto) {
+		this.numDiaVencto = numDiaVencto;
+	}
+	public Integer getQtdParcelaPagto() {
+		return qtdParcelaPagto;
+	}
+	public void setQtdParcelaPagto(Integer qtdParcelaPagto) {
+		this.qtdParcelaPagto = qtdParcelaPagto;
+	}
+	public PremioEndosso getPremioEndosso() {
+		return premioEndosso;
+	}
+	public void setPremioEndosso(PremioEndosso premioEndosso) {
+		this.premioEndosso = premioEndosso;
+	}
+	public Integer getNumPesEstip() {
+		return numPesEstip;
+	}
+	public void setNumPesEstip(Integer numPesEstip) {
+		this.numPesEstip = numPesEstip;
+	}
+	public DadosBancariosDTO getBancariosEstip() {
+		return bancariosEstip;
+	}
+	public void setBancariosEstip(DadosBancariosDTO bancariosEstip) {
+		this.bancariosEstip = bancariosEstip;
 	}
 	@Override
 	public String toString() {

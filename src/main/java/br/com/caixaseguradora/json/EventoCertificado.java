@@ -8,6 +8,7 @@ import java.util.List;
 import com.google.gson.Gson;
 
 import br.com.caixaseguradora.util.Util;
+import br.com.caixaseguradora.vo.Acoes;
 import br.com.caixaseguradora.vo.Adesao;
 import br.com.caixaseguradora.vo.Beneficiarios;
 import br.com.caixaseguradora.vo.Cabecalho;
@@ -20,6 +21,8 @@ import br.com.caixaseguradora.vo.Dados;
 import br.com.caixaseguradora.vo.DadosFinanciamento;
 import br.com.caixaseguradora.vo.DadosHabitacional;
 import br.com.caixaseguradora.vo.DadosInstituicao;
+import br.com.caixaseguradora.vo.DadosPessoa;
+import br.com.caixaseguradora.vo.DadosPessoaFisica;
 import br.com.caixaseguradora.vo.Empresa;
 import br.com.caixaseguradora.vo.Endereco;
 import br.com.caixaseguradora.vo.EnderecoQualificador;
@@ -36,15 +39,19 @@ import br.com.caixaseguradora.vo.Mecanismo;
 import br.com.caixaseguradora.vo.Mensagem;
 import br.com.caixaseguradora.vo.MensagemDados;
 import br.com.caixaseguradora.vo.MensagemId;
+import br.com.caixaseguradora.vo.Moeda;
 import br.com.caixaseguradora.vo.ObjetoEnvio;
 import br.com.caixaseguradora.vo.Oferta;
 import br.com.caixaseguradora.vo.OfertaId;
 import br.com.caixaseguradora.vo.OfertaIdDados;
 import br.com.caixaseguradora.vo.Opcoes;
 import br.com.caixaseguradora.vo.Parametros;
+import br.com.caixaseguradora.vo.Parcelamento;
 import br.com.caixaseguradora.vo.Periodicidade;
 import br.com.caixaseguradora.vo.Pessoa;
 import br.com.caixaseguradora.vo.PessoaId;
+import br.com.caixaseguradora.vo.PessoaSegurado;
+import br.com.caixaseguradora.vo.PessoaSeguradoId;
 import br.com.caixaseguradora.vo.Plano;
 import br.com.caixaseguradora.vo.Premio;
 import br.com.caixaseguradora.vo.Qualificador;
@@ -239,14 +246,33 @@ public abstract class EventoCertificado {
 		  }
 		  for (Segurado seg: certificado.getSegurados()) {
 			  ItensSegurado itensSegurado = new ItensSegurado();
+			  
+			  DadosPessoa dadosPessoa = new DadosPessoa();
+			  PessoaSegurado pessoaSegurado = new PessoaSegurado();
+			  PessoaSeguradoId seguradoId = new PessoaSeguradoId();
+			  seguradoId.setTipo("F");
+			  seguradoId.setCodigo("CPF");
+			  seguradoId.setDocumento(seg.getCpfCnpjSegurado().toString());
+			  pessoaSegurado.setIdentificacao(seguradoId);
+			  dadosPessoa.setSegurado(pessoaSegurado);
+			  itensSegurado.setDadosPessoa(dadosPessoa);
+			  
 			  itensSegurado.setTipoItemSegurado("HABITACIONAL");
 			  Beneficiarios beneficiarios = new Beneficiarios();
 			  beneficiarios.setPercentualParticipacao(seg.getPctPactuacao().toString());
+			  
 			  Pessoa pessoa = new Pessoa();
 			  pessoa.setNome(seg.getNomRazSocial());
 			  PessoaId identificacao = new PessoaId();		
-			  identificacao.setTipo(seg.getCpfCnpjSegurado().toString());
+			  identificacao.setTipo("F");
+			  identificacao.setDocumento("CPF");
+			  identificacao.setCodigo(seg.getCpfCnpjSegurado().toString());
 			  pessoa.setIdentificacao(identificacao);
+			  
+			  DadosPessoaFisica dadosPessoaFisica = new DadosPessoaFisica();
+			  dadosPessoaFisica.setDataNascimento(Util.dateToStringUtc(seg.getDtaNascimento()));
+			  pessoa.setDadosPessoaFisica(dadosPessoaFisica);
+			  
 			  
 			  beneficiarios.setPessoa(pessoa);
 			  itensSegurado.setBeneficiarios(beneficiarios);
@@ -293,7 +319,32 @@ public abstract class EventoCertificado {
 		  mensagem.getItensSegurados().add(itensSegurado);
 
 		  Premio premio = new Premio();
+		  if(certificado.isCertificadoDFC() == false) {
+			  premio.setPremioTotalBruto(certificado.getVlrPremioMip().add(certificado.getVlrIofMip()).add(certificado.getVlrPremioDfi()).add(certificado.getVlrIofDfi()).toString());		  
+			  premio.setPremioTotalDesconto(BigDecimal.ZERO.toString());
+			  premio.setPremioTotalLiquido(certificado.getVlrPremioMip().add(certificado.getVlrPremioDfi()).toString());
+			  premio.setPremioTotalIOF(certificado.getVlrIofMip().add(certificado.getVlrIofDfi()).toString());
+			  premio.setPremioTotalAdicionalFracionamento(BigDecimal.ZERO.toString());
+			  premio.setPremioTotalCobertura(certificado.getVlrPremioMip().add(certificado.getVlrIofMip()).add(certificado.getVlrPremioDfi()).add(certificado.getVlrIofDfi()).toString());		  
+			  premio.setPremioTotalAssistencia(BigDecimal.ZERO.toString());		  
+			  premio.setValorSeguro(certificado.getVlrImpSegMip().add(certificado.getVlrImpSegDfi()).toString());	
+			  
+			  premio.setValorTotalBruto(certificado.getVlrPremioMip().add(certificado.getVlrIofMip()).add(certificado.getVlrPremioDfi()).add(certificado.getVlrIofDfi()).toString());
+			  premio.setValorTotalDesconto(BigDecimal.ZERO.toString());
+			  
+			  premio.setValorTotalLiquido(certificado.getVlrPremioMip().add(certificado.getVlrPremioDfi()).toString());
+			  premio.setValorTotalIOF(certificado.getVlrIofMip().add(certificado.getVlrIofDfi()).toString());
+			  premio.setValorTotalAdicionalFracionamento(BigDecimal.ZERO.toString());
+			  premio.setValorTotalCobertura(certificado.getVlrPremioMip().add(certificado.getVlrIofMip()).add(certificado.getVlrPremioDfi()).add(certificado.getVlrIofDfi()).toString());		  
+			  premio.setValorTotalAssistencia(BigDecimal.ZERO.toString());		  
+			  premio.setValorTotalAgravamento(BigDecimal.ZERO.toString());
+		  }else {
+			  
+		  }
+		  
 		  premio.setValor(certificado.getPremioTotal().toString());
+		  Moeda moeda = new Moeda("01", "Real", "R$");
+		  premio.setMoeda(moeda);
 		  mensagem.setPremio(premio);
 
 	  }
@@ -318,35 +369,67 @@ public abstract class EventoCertificado {
 		  instituicao.setCodigo(" ");
 		  instituicao.setDigitoVerificador(" ");
 		  instituicao.setNome(" ");
-		  instituicao.setTipo(" ");
+		  instituicao.setTipo("BANCO");
 		  
 		  dados.setInstituicao(instituicao);
+		  mecanismo.setTipo("CRE");
+		  Date vencimento = new Date();
+		  vencimento.setDate(certificado.getNumDiaVencto());
+		  dados.setDataVencimento(Util.dateToStringUtc(vencimento ));
 		  mecanismo.setDados(dados);
 		  opcoes.setMecanismo(mecanismo);
 		  
+		  Parcelamento parcelamento = new Parcelamento();
+		  parcelamento.setValorDemaisParcelas(BigDecimal.ZERO.toString());
+		  parcelamento.setQuantidadeParcela(certificado.getQtdParcelaPagto().toString());
+		  parcelamento.setValorJuros(BigDecimal.ZERO.toString());
+		  parcelamento.setValorPrimeiraParcela(certificado.getVlrPremioDfi().add(certificado.getVlrPremioMip()).toString());
+		  Periodicidade periodicidade = new Periodicidade();
+		  periodicidade.setQuantidade(certificado.getQtdMesesContrato().toString());
+		  periodicidade.setUnidade(certificado.getDesPeriodicidadeCobr());
+		  periodicidade.setDescricao(certificado.getDesPeriodicidadeCobr());
+		  parcelamento.setPeriodicidade(periodicidade);
+		  opcoes.setParcelamento(parcelamento);
+		  
 		  Adesao adesao = new Adesao();
+		  if(certificado.getPremioEndosso() != null) {
+			  adesao.setCodigoIDLG(certificado.getPremioEndosso().getNumIdlg().trim());
+			  adesao.setDataHoraPagamento(Util.dateToStringUtc(certificado.getPremioEndosso().getDtaQuitacao()));
+			  adesao.setDataVencimento(Util.dateToStringUtc(certificado.getPremioEndosso().getDtaVencimento()));
+			  adesao.setValor(BigDecimal.ZERO.toString());
+		  }
+		  
+		  Moeda moeda = new Moeda("01", "Real", "R$");
+		  adesao.setMoeda(moeda);
+		  
 		  Mecanismo mecanismoAdesao = new Mecanismo();
+		  mecanismoAdesao.setTipo("DEBITO_CONTA");
 		  Dados dadosAdesao = new Dados();
 		  DadosInstituicao instituicaoAdesao = new DadosInstituicao();
 		  
-		  instituicaoAdesao.setCodigo(" ");
-		  instituicaoAdesao.setDigitoVerificador(" ");
-		  instituicaoAdesao.setNome(" ");
-		  instituicaoAdesao.setTipo(" ");
+		  instituicaoAdesao.setCodigo(certificado.getBancariosEstip() != null ? certificado.getBancariosEstip().getCodBanco().toString(): "");
+		  instituicaoAdesao.setDigitoVerificador(certificado.getBancariosEstip() != null ? "1": " ");
+		  instituicaoAdesao.setNome(certificado.getBancariosEstip() != null ? certificado.getBancariosEstip().getNomBanco(): "");
+		  instituicaoAdesao.setTipo("BANCO");
 		  
 		  dadosAdesao.setInstituicao(instituicaoAdesao);
 		  mecanismoAdesao.setDados(dadosAdesao);
 		  adesao.setMecanismo(mecanismoAdesao);
 		  
 		  Plano plano = new Plano();
+		  plano.setCodigoIDLG(" ");
+		  plano.setMoeda(moeda);
+		  
 		  Mecanismo mecanismoPlano = new Mecanismo();
+		  mecanismoPlano.setTipo("DEBITO_CONTA");
+		  
 		  Dados dadosPlano = new Dados();
 		  DadosInstituicao instituicaoPlano = new DadosInstituicao();
 		  
-		  instituicaoPlano.setCodigo(" ");
-		  instituicaoPlano.setDigitoVerificador(" ");
-		  instituicaoPlano.setNome(" ");
-		  instituicaoPlano.setTipo(" ");
+		  instituicaoPlano.setCodigo(certificado.getBancariosEstip() != null ? certificado.getBancariosEstip().getCodBanco().toString(): "");
+		  instituicaoPlano.setDigitoVerificador(certificado.getBancariosEstip() != null ? "1": " ");
+		  instituicaoPlano.setNome(certificado.getBancariosEstip() != null ? certificado.getBancariosEstip().getNomBanco(): "");
+		  instituicaoPlano.setTipo("BANCO");
 
 		  dadosPlano.setInstituicao(instituicaoPlano);
 		  mecanismoPlano.setDados(dadosPlano);
@@ -354,20 +437,43 @@ public abstract class EventoCertificado {
 		  
 		  cobranca.getOpcoes().add(opcoes);
 		  cobranca.setAdesao(adesao);
+		  mensagem.setCobranca(cobranca);
 	  }
 	  
 	  private static Comunicacao preencherReguaComunicacao(Certificado certificado) {
 		  Comunicacao comunicacao = new Comunicacao();
 		  List<Parametros> parametros = new ArrayList<Parametros>();
 		  for (Segurado seg : certificado.getSegurados()) {
-			  for (Telefone tel: seg.getTelefones()) {
-				Parametros param = new Parametros();
-				param.setCodigo("telefone");
-				param.setTipo(tel.getDesTpTelefone());
-				param.setValor(tel.getNumDDD()+""+tel.getNumTelefone());
-				parametros.add(param);
+			  if(seg.getTelefones() !=null ) {
+				  for (Telefone tel: seg.getTelefones()) {
+					  Parametros param = new Parametros();
+					  param.setCodigo("telefone");
+					  param.setTipo(tel.getDesTpTelefone().trim().toLowerCase());
+					  param.setValor(tel.getNumDDD()+""+tel.getNumTelefone());
+					  parametros.add(param);
+				  }				  
 			  }
+			  if(seg.getEmails()!=null) {
+				  for (String email : seg.getEmails()) {
+					  Parametros param = new Parametros();
+					  param.setCodigo("email");
+					  param.setTipo("pessoal");
+					  param.setValor(email.trim());
+					  parametros.add(param);
+				}
+			  }
+			  
 		  }
+		  Acoes acoes = new Acoes();
+		  acoes.setEnviaEmail(true);
+		  acoes.setEnviaSMS(true);
+		  acoes.setEnviaImpresso(false);
+		  acoes.setEnviaPush(false);
+		  acoes.setAssina(false);
+		  acoes.setArmazenaHCP(true);
+		  acoes.setEmailComProva(true);
+		  acoes.setGeraPDF(true);
+		  comunicacao.setAcoes(acoes);
 		  comunicacao.setParametros(parametros);
 		  return comunicacao;
 	  }

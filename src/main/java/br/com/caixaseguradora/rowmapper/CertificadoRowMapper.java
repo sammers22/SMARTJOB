@@ -64,6 +64,7 @@ public class CertificadoRowMapper implements RowMapper<Certificado> {
 		certificado.setDtaAverbacao(rs.getDate("DTA_AVERBACAO"));
 		certificado.setStaPessoa(rs.getString("STA_PESSOA"));
 		
+		
 		return certificado;
 	}
 

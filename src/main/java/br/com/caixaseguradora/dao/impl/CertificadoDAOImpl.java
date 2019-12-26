@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import br.com.caixaseguradora.dao.CertificadoDAO;
 import br.com.caixaseguradora.vo.Certificado;
 import br.com.caixaseguradora.vo.Segurado;
+import br.com.caixaseguradora.vo.Telefone;
 
 @SuppressWarnings("deprecation")
 public class CertificadoDAOImpl implements CertificadoDAO {
@@ -23,9 +24,9 @@ public class CertificadoDAOImpl implements CertificadoDAO {
 	}
 
 	public List<Segurado> recuperarSegurados(Integer numContrato, Long numCertificado, Integer seqCertificado) {
-		String sql = " SELECT P.NOM_RAZ_SOCIAL, P.NUM_CPF_CNPJ AS cpfCnpjSegurado, OP.PCT_PACTUACAO FROM " + 
+		String sql = " SELECT OP.NUM_PESSOA, P.NOM_RAZ_SOCIAL, P.NUM_CPF_CNPJ AS cpfCnpjSegurado, OP.PCT_PACTUACAO FROM " + 
 				" SEGUROS.SX_OBJ_CERTIF OC, SEGUROS.SX_OBJ_CERTIF_PES OCP, " + 
-				" SEGUROS.SX_OBJ_PESSOA OP, SEGUROS.SX_PESSOA P" + 
+				" SEGUROS.SX_OBJ_PESSOA OP, SEGUROS.SX_PESSOA P"+
 				" WHERE OC.NUM_CONTRATO = OCP.NUM_CONTRATO " + 
 				" AND OC.NUM_CERTIFICADO = OCP.NUM_CERTIFICADO " + 
 				" AND OC.SEQ_OBJ_CERTIF = OCP.SEQ_OBJ_CERTIF " + 
@@ -40,8 +41,18 @@ public class CertificadoDAOImpl implements CertificadoDAO {
 		 List<Segurado> seg = simpleJdbcTemplate.query(sql, ParameterizedBeanPropertyRowMapper.newInstance(Segurado.class));
 
 		 return seg;
-
 	}
+	
+	public List<Telefone> recuperarTelefones(Integer numPessoa) {
+		String sql = " SELECT PT.NUM_DDD AS numDDD, PT.NUM_TELEFONE AS numTelefone, TPTEL.DES_TP_TELEFONE AS desTpTelefone FROM SEGUROS.SX_PESSOA_TELEFONE PT " + 
+				"INNER JOIN SEGUROS.SX_TP_TELEFONE TPTEL ON PT.COD_TP_TELEFONE = TPTEL.COD_TP_TELEFONE " + 
+				"WHERE PT.NUM_PESSOA = "+numPessoa;
+		
+		List<Telefone> tels = simpleJdbcTemplate.query(sql, ParameterizedBeanPropertyRowMapper.newInstance(Telefone.class));
+		
+		return tels;		
+	}
+	
 	
 	public Integer recuperarRamo(Integer numRamo, Integer numCobertura) {
 		String sql = "SELECT NUM_RAMO_CONTABIL FROM SEGUROS.SX_RAMO_COBER_CONTABIL "
@@ -63,7 +74,8 @@ public class CertificadoDAOImpl implements CertificadoDAO {
 		 " OC.VLR_IMP_SEG_MIP, OC.VLR_IMP_SEG_DFI, OC.VLR_IMP_SEG_DFC, OC.VLR_PREMIO_MIP, OC.VLR_PREMIO_DFI,OC.VLR_PREMIO_DFC, OC.VLR_IOF_MIP, OC.VLR_IOF_DFI, OC.VLR_IOF_DFC,"+
 		 " (OC.VLR_PREMIO_MIP + OC.VLR_PREMIO_DFI + OC.VLR_PREMIO_DFC + OC.VLR_IOF_MIP + OC.VLR_IOF_DFI + OC.VLR_IOF_DFC) AS PREMIO_TOTAL,"+
 		 " OC.VLR_CESH,  OC.SEQ_OBJ_CERTIF,  DF.IND_TP_PAGAMENTO, DF.IND_PERIODICIDADE_COBR, CS.QTD_MESES_CONTRATO,"+
-		 " RAMO.NUM_RAMO, FONTE.COD_FONTE,  CS.DTA_AVERBACAO, PE.STA_PESSOA"+
+		 " RAMO.NUM_RAMO, FONTE.COD_FONTE,  CS.DTA_AVERBACAO, PE.STA_PESSOA,"+
+		 " PROD.COD_PRODUTO as codProduto, PROD.DES_PRODUTO as desProduto , RAMO.NOM_RAMO AS nomRamo, PROD.COD_GRUPO_SUSEP AS codGrupoSusep"+
 		 " FROM SEGUROS.SX_OBJ_CERTIF OC"+
 		 " INNER JOIN SEGUROS.SX_CONTR_SEGURO CS ON OC.NUM_CONTRATO = CS.NUM_CONTRATO"+
 		 " INNER JOIN SEGUROS.SX_CONTR_TERC CT ON CS.NUM_CONTRATO = CT.NUM_CONTRATO"+
@@ -74,8 +86,8 @@ public class CertificadoDAOImpl implements CertificadoDAO {
 		 " INNER JOIN SEGUROS.SX_PESSOA_ENDERECO PEND ON PE.NUM_PESSOA = PEND.NUM_PESSOA AND PEND.COD_FIN_ENDERECO = 4 "+
 		 " INNER JOIN SEGUROS.SX_ENDERECO ENDER ON ENDER.NUM_ENDERECO = PEND.NUM_ENDERECO "+
 		 " INNER JOIN SEGUROS.SX_OBJ_CERTIF_PES OCP ON OC.NUM_CONTRATO = OCP.NUM_CONTRATO"+
-		 " AND OC.NUM_CERTIFICADO = OCP.NUM_CERTIFICADO"+
-		 " AND OC.SEQ_OBJ_CERTIF = OCP.SEQ_OBJ_CERTIF"+
+											 " AND OC.NUM_CERTIFICADO = OCP.NUM_CERTIFICADO"+
+											 " AND OC.SEQ_OBJ_CERTIF = OCP.SEQ_OBJ_CERTIF"+
 		 " INNER JOIN SEGUROS.SX_OBJ_PESSOA OP ON OCP.NUM_CONTRATO = OP.NUM_CONTRATO AND OCP.NUM_PESSOA = OP.NUM_PESSOA AND OCP.NUM_PESSOA = OP.NUM_PESSOA"+
 		 " INNER JOIN SEGUROS.SX_PESSOA P ON OP.NUM_PESSOA = P.NUM_PESSOA "+
 		 " INNER JOIN SEGUROS.SX_OBJ_ENDERECO OE ON CS.NUM_CONTRATO = OE.NUM_CONTRATO AND OE.COD_TP_ENDERECO = 1 AND OE.STA_ENDERECO = 'A' "+
@@ -93,18 +105,21 @@ public class CertificadoDAOImpl implements CertificadoDAO {
 
 		 for (Certificado cert : certificado) {
 		 List<Segurado> segurados = recuperarSegurados(cert.getNumContrato(), cert.getNumCertificado(), cert.getSeqObjCertif());
-		    cert.setSegurados(segurados);
+		 for (Segurado seg : segurados) {
+			 seg.setTelefones(recuperarTelefones(seg.getNumPessoa()));
+		 }
+		 cert.setSegurados(segurados);
 		    
-		     if((cert.getVlrImpSegDfc() == null || cert.getVlrImpSegDfc().compareTo(BigDecimal.ZERO) == 0)
-		     && (cert.getVlrPremioDfc() == null || cert.getVlrPremioDfc().compareTo(BigDecimal.ZERO) == 0)
+		 if((cert.getVlrImpSegDfc() == null || cert.getVlrImpSegDfc().compareTo(BigDecimal.ZERO) == 0)
+		    && (cert.getVlrPremioDfc() == null || cert.getVlrPremioDfc().compareTo(BigDecimal.ZERO) == 0)
 		     && (cert.getVlrIofDfc() == null || cert.getVlrIofDfc().compareTo(BigDecimal.ZERO) == 0)) {
 		     cert.setCertificadoDFC(false);
-		     }else {
+		 }else {
 		     cert.setCertificadoDFC(true);
-		     }
-		     if(cert.isCertificadoDFC() == true) {
+		 }
+		 if(cert.isCertificadoDFC() == true) {
 		     cert.setRamoDfc(14);
-		     }else {
+		 }else {
 		     cert.setRamoMpi(recuperarRamo(cert.getNumRamo(), 1));
 		     cert.setRamoDfi(recuperarRamo(cert.getNumRamo(), 2));
 		     }

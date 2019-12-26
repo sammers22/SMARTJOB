@@ -2,6 +2,7 @@ package br.com.caixaseguradora.vo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Segurado implements Serializable {
 
@@ -10,10 +11,12 @@ public class Segurado implements Serializable {
 	 */
 	private static final long serialVersionUID = -6488502410551469175L;
 	
+	private Integer numPessoa;
 	private Long	cpfCnpjSegurado;
 	private String	nomRazSocial;
 	private BigDecimal	pctPactuacao;
 	
+	private List<Telefone> telefones;
 	
 	
 	public Segurado(String nomRazSocial, Long cpfCnpjSegurado, BigDecimal pctPactuacao) {
@@ -25,7 +28,13 @@ public class Segurado implements Serializable {
 	public Segurado() {
 		super();
 	}
-	
+			
+	public Integer getNumPessoa() {
+		return numPessoa;
+	}
+	public void setNumPessoa(Integer numPessoa) {
+		this.numPessoa = numPessoa;
+	}
 	public String getNomRazSocial() {
 		return nomRazSocial;
 	}
@@ -43,6 +52,13 @@ public class Segurado implements Serializable {
 	}
 	public void setPctPactuacao(BigDecimal pctPactuacao) {
 		this.pctPactuacao = pctPactuacao;
+	}
+			
+	public List<Telefone> getTelefones() {
+		return telefones;
+	}
+	public void setTelefones(List<Telefone> telefones) {
+		this.telefones = telefones;
 	}
 	@Override
 	public String toString() {

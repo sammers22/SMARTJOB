@@ -58,6 +58,10 @@ public class Certificado {
 	private Integer ramoDfi;
 	private Integer ramoMpi;
 	private Integer ramoDfc;
+	private String nomRamo;
+	private Integer codProduto;
+	private Integer codGrupoSusep;
+	private String desProduto;
 	private boolean certificadoDFC;
 	
 	private List<Segurado> segurados;
@@ -385,9 +389,13 @@ public class Certificado {
 	}
 	public void setSegurados(List<Segurado> segurados) {
 		this.segurados = segurados;
+	}	
+	public Integer getCodGrupoSusep() {
+		return codGrupoSusep;
 	}
-	
-	
+	public void setCodGrupoSusep(Integer codGrupoSusep) {
+		this.codGrupoSusep = codGrupoSusep;
+	}
 	public Integer getRamoDfi() {
 		return ramoDfi;
 	}
@@ -411,6 +419,24 @@ public class Certificado {
 	}
 	public void setCertificadoDFC(boolean certificadoDFC) {
 		this.certificadoDFC = certificadoDFC;
+	}		
+	public String getNomRamo() {
+		return nomRamo;
+	}
+	public void setNomRamo(String nomRamo) {
+		this.nomRamo = nomRamo;
+	}
+	public Integer getCodProduto() {
+		return codProduto;
+	}
+	public void setCodProduto(Integer codProduto) {
+		this.codProduto = codProduto;
+	}
+	public String getDesProduto() {
+		return desProduto;
+	}
+	public void setDesProduto(String desProduto) {
+		this.desProduto = desProduto;
 	}
 	@Override
 	public String toString() {

@@ -77,12 +77,17 @@ public class CertificadoDAOImpl implements CertificadoDAO {
 	}
 	
 	private DadosBancariosDTO recuperarDadosBancarios(Integer numPessoa) {
-		String sql = " SELECT COD_BANCO, COD_AGENCIA, NUM_CONTA, NUM_DV_CONTA, NUM_OPER_CONTA, BAN.NOME_BANCO "+ 
+		String sql = " SELECT PECB.COD_BANCO, PECB.COD_AGENCIA, PECB.NUM_CONTA, PECB.NUM_DV_CONTA, PECB.NUM_OPER_CONTA, BAN.NOME_BANCO "+ 
 				" FROM SEGUROS.SX_PESSOA_CONTA_BANCO  PECB "+
 				" LEFT JOIN SEGUROS.BANCOS BAN ON PECB.COD_BANCO = BAN.COD_BANCO  "+
 				" where NUM_PESSOA =  "+numPessoa;
 		
-		return simpleJdbcTemplate.queryForObject(sql, DadosBancariosDTO.class);
+		List<DadosBancariosDTO> dadosBanc = simpleJdbcTemplate.query(sql, ParameterizedBeanPropertyRowMapper.newInstance(DadosBancariosDTO.class));
+		if(dadosBanc!= null) {
+			return dadosBanc.get(0);
+		}else {
+			return null;			
+		}
 	}
 	
 	public List<Telefone> recuperarTelefones(Integer numPessoa) {

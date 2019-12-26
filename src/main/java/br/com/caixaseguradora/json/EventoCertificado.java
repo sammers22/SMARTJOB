@@ -393,7 +393,7 @@ public abstract class EventoCertificado {
 		  
 		  Adesao adesao = new Adesao();
 		  if(certificado.getPremioEndosso() != null) {
-			  adesao.setCodigoIDLG(certificado.getPremioEndosso().getNumIdlg().trim());
+			  adesao.setCodigoIDLG(certificado.getPremioEndosso().getNumIdlg() != null ? certificado.getPremioEndosso().getNumIdlg().trim():certificado.getPremioEndosso().getNumIdlg());
 			  adesao.setDataHoraPagamento(Util.dateToStringUtc(certificado.getPremioEndosso().getDtaQuitacao()));
 			  adesao.setDataVencimento(Util.dateToStringUtc(certificado.getPremioEndosso().getDtaVencimento()));
 			  adesao.setValor(BigDecimal.ZERO.toString());

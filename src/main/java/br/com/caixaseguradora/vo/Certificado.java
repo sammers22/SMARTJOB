@@ -70,8 +70,22 @@ public class Certificado {
 	private PremioEndosso premioEndosso;
 	private List<Segurado> segurados;
 	private Long numCpfCnpjRemunerado;
+	private String	nomeFonte;
+	private Integer	orgaoEmissor;
+	private Integer	codUnidOper;
 	
-	
+	public String getNomeFonte() {
+		return nomeFonte;
+	}
+	public void setNomeFonte(String nomeFonte) {
+		this.nomeFonte = nomeFonte;
+	}
+	public Integer getOrgaoEmissor() {
+		return orgaoEmissor;
+	}
+	public void setOrgaoEmissor(Integer orgaoEmissor) {
+		this.orgaoEmissor = orgaoEmissor;
+	}
 	public Long getNumCpfCnpjRemunerado() {
 		return numCpfCnpjRemunerado;
 	}
@@ -479,6 +493,12 @@ public class Certificado {
 	}
 	public void setBancariosEstip(DadosBancariosDTO bancariosEstip) {
 		this.bancariosEstip = bancariosEstip;
+	}	
+	public Integer getCodUnidOper() {
+		return codUnidOper;
+	}
+	public void setCodUnidOper(Integer codUnidOper) {
+		this.codUnidOper = codUnidOper;
 	}
 	@Override
 	public String toString() {

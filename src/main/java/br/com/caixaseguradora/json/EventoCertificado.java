@@ -12,6 +12,7 @@ import br.com.caixaseguradora.vo.Acoes;
 import br.com.caixaseguradora.vo.Adesao;
 import br.com.caixaseguradora.vo.Beneficiarios;
 import br.com.caixaseguradora.vo.Cabecalho;
+import br.com.caixaseguradora.vo.Canal;
 import br.com.caixaseguradora.vo.CategoriaParceiro;
 import br.com.caixaseguradora.vo.Certificado;
 import br.com.caixaseguradora.vo.Clientes;
@@ -55,14 +56,18 @@ import br.com.caixaseguradora.vo.PessoaId;
 import br.com.caixaseguradora.vo.PessoaSegurado;
 import br.com.caixaseguradora.vo.PessoaSeguradoId;
 import br.com.caixaseguradora.vo.Plano;
+import br.com.caixaseguradora.vo.PontoVenda;
 import br.com.caixaseguradora.vo.Premio;
 import br.com.caixaseguradora.vo.Qualificador;
 import br.com.caixaseguradora.vo.RamoCaixaSeguradora;
+import br.com.caixaseguradora.vo.ResponsavelCaixaSeguradora;
+import br.com.caixaseguradora.vo.ResponsavelEmpresa;
 import br.com.caixaseguradora.vo.Segurado;
 import br.com.caixaseguradora.vo.Telefone;
 import br.com.caixaseguradora.vo.Tipo;
 import br.com.caixaseguradora.vo.TipoCliente;
 import br.com.caixaseguradora.vo.Tributacao;
+import br.com.caixaseguradora.vo.Vigencia;
 import br.com.caixaseguradora.vo.VigenciaContrato;
 
 public abstract class EventoCertificado {
@@ -208,6 +213,28 @@ public abstract class EventoCertificado {
 		  categoriaParceiro.setValor("assistência");
 		  empresa.setCategoriaParceiro(categoriaParceiro);
 		  
+		  PontoVenda pontoVenda = new PontoVenda();
+		  pontoVenda.setCodigo(certificado.getCodFonte().toString());
+		  pontoVenda.setNome(certificado.getNomeFonte().trim());
+		  pontoVenda.setCodigoExterno(certificado.getOrgaoEmissor().toString());
+		  pontoVenda.setTipo("AGENCIA");
+		  pontoVenda.setSituacao("ATIVA");
+		  Vigencia vigencia = new Vigencia();
+		  vigencia.setInicio(Util.dateToStringUtc(certificado.getDtaIniVigencia()));
+		  vigencia.setTermino(Util.dateToStringUtc(certificado.getDtaFimVigencia()));
+		  pontoVenda.setVigencia(vigencia);
+		  ResponsavelCaixaSeguradora responsavelCaixaSeguradora = new ResponsavelCaixaSeguradora("GERPO", "Alamir Mesquita Junior");
+		  pontoVenda.setResponsavelCaixaSeguradora(responsavelCaixaSeguradora);
+		  ResponsavelEmpresa responsavelEmpresa = new ResponsavelEmpresa("GERPO", "Alamir Mesquita Junior");
+		  pontoVenda.setResponsavelEmpresa(responsavelEmpresa);
+		  Canal canal = new Canal();
+		  canal.setCodigo(certificado.getCodUnidOper() != null? certificado.getCodUnidOper().toString(): " ");
+		  canal.setDescricao("AGENCIA CEF");
+		  canal.setTipo("BALCAO");
+		  canal.setNome("CEF");
+		  pontoVenda.setCanal(canal);
+		  empresa.setPontoVenda(pontoVenda);
+		  
 		  estruturaComercial.setEmpresa(empresa);
 		  if(mensagem.getEstruturaComercial() == null) {
 			  mensagem.setEstruturaComercial(new ArrayList<EstruturaComercial>());			  
@@ -259,6 +286,28 @@ public abstract class EventoCertificado {
 		  categoriaParceiro.setCodigo("1");
 		  categoriaParceiro.setValor("assistência");
 		  empresa.setCategoriaParceiro(categoriaParceiro);
+		  
+		  PontoVenda pontoVenda = new PontoVenda();
+		  pontoVenda.setCodigo(certificado.getCodFonte().toString());
+		  pontoVenda.setNome(certificado.getNomeFonte().trim());
+		  pontoVenda.setCodigoExterno(certificado.getOrgaoEmissor().toString());
+		  pontoVenda.setTipo("AGENCIA");
+		  pontoVenda.setSituacao("ATIVA");
+		  Vigencia vigencia = new Vigencia();
+		  vigencia.setInicio(Util.dateToStringUtc(certificado.getDtaIniVigencia()));
+		  vigencia.setTermino(Util.dateToStringUtc(certificado.getDtaFimVigencia()));
+		  pontoVenda.setVigencia(vigencia);
+		  ResponsavelCaixaSeguradora responsavelCaixaSeguradora = new ResponsavelCaixaSeguradora("GERPO", "Alamir Mesquita Junior");
+		  pontoVenda.setResponsavelCaixaSeguradora(responsavelCaixaSeguradora);
+		  ResponsavelEmpresa responsavelEmpresa = new ResponsavelEmpresa("GERPO", "Alamir Mesquita Junior");
+		  pontoVenda.setResponsavelEmpresa(responsavelEmpresa);
+		  Canal canal = new Canal();
+		  canal.setCodigo(certificado.getCodUnidOper() != null? certificado.getCodUnidOper().toString(): " ");
+		  canal.setDescricao("AGENCIA CEF");
+		  canal.setTipo("BALCAO");
+		  canal.setNome("CEF");
+		  pontoVenda.setCanal(canal);
+		  empresa.setPontoVenda(pontoVenda);
 		  
 		  if(mensagem.getEstruturaComercial() == null) {
 			  mensagem.setEstruturaComercial(new ArrayList<EstruturaComercial>());			  

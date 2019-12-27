@@ -12,9 +12,11 @@ import br.com.caixaseguradora.vo.Acoes;
 import br.com.caixaseguradora.vo.Adesao;
 import br.com.caixaseguradora.vo.Beneficiarios;
 import br.com.caixaseguradora.vo.Cabecalho;
+import br.com.caixaseguradora.vo.CategoriaParceiro;
 import br.com.caixaseguradora.vo.Certificado;
 import br.com.caixaseguradora.vo.Clientes;
 import br.com.caixaseguradora.vo.Cobertura;
+import br.com.caixaseguradora.vo.CoberturaIdExterna;
 import br.com.caixaseguradora.vo.Cobranca;
 import br.com.caixaseguradora.vo.Comunicacao;
 import br.com.caixaseguradora.vo.Dados;
@@ -58,6 +60,8 @@ import br.com.caixaseguradora.vo.Qualificador;
 import br.com.caixaseguradora.vo.RamoCaixaSeguradora;
 import br.com.caixaseguradora.vo.Segurado;
 import br.com.caixaseguradora.vo.Telefone;
+import br.com.caixaseguradora.vo.Tipo;
+import br.com.caixaseguradora.vo.TipoCliente;
 import br.com.caixaseguradora.vo.Tributacao;
 import br.com.caixaseguradora.vo.VigenciaContrato;
 
@@ -166,11 +170,21 @@ public abstract class EventoCertificado {
 		  empresa.setTipoRelacionamentoComercial("seguradora");
 		  empresa.setCodigoNegocio("05631");
 		  empresa.setSituacao("ATIVA");
-/*		  IdentificacaoExterna identificacaoExterna = new IdentificacaoExterna();
+		  empresa.setTipo("E");
+		  empresa.setDescricao("Caixa Seguradora S/A");
+
+		  IdentificacaoExterna identificacaoExterna = new IdentificacaoExterna();
 		  Instituicao instituicao = new Instituicao();
-		  instituicao.setCodigoNegocio();
-		  identificacaoExterna.setInstituicao(instituicao);
-		  empresa.setIdentificacaoExterna(identificacaoExterna);*/
+		  instituicao.setCodigo("1.232.132");
+		  instituicao.setCodigoNegocio("SUSEP201110021");
+		  instituicao.setEmpresa("SUSEP");
+		  instituicao.setDigitoVerificador("1");
+		  
+		  Qualificador qualificador = new Qualificador();
+		  qualificador.setDescricaoRamo(certificado.getNomRamo());
+		  qualificador.setRamo(certificado.getNumRamo().toString());
+		  qualificador.setGrupo(certificado.getCodGrupoSusep().toString());
+		  instituicao.setQualificador(qualificador);
 		  
 		  Endereco endereco = new Endereco();
 		  endereco.setLogradouro("SHN Quadra 1 Bloco E - Edifício Sede Caixa Seguradora");
@@ -178,13 +192,21 @@ public abstract class EventoCertificado {
 		  endereco.setCidade("Brasília");
 		  endereco.setCep("70701-050");
 		  endereco.setEstado("DF");
+		  endereco.setPais("Brasil");
+		  endereco.setNumero(" ");
+		  endereco.setComplemento("");
 		  
-		  EnderecoQualificador qualificador = new EnderecoQualificador();
-		  qualificador.setCodigo("1");
-		  qualificador.setValor("COBR");
+		  EnderecoQualificador endQualificador = new EnderecoQualificador();
+		  endQualificador.setCodigo("1");
+		  endQualificador.setValor("COBR");
 		  
-		  endereco.setQualificador(qualificador);
+		  endereco.setQualificador(endQualificador);
 		  empresa.setEndereco(endereco);
+		  
+		  CategoriaParceiro categoriaParceiro = new CategoriaParceiro();
+		  categoriaParceiro.setCodigo("1");
+		  categoriaParceiro.setValor("assistência");
+		  empresa.setCategoriaParceiro(categoriaParceiro);
 		  
 		  estruturaComercial.setEmpresa(empresa);
 		  if(mensagem.getEstruturaComercial() == null) {
@@ -197,11 +219,46 @@ public abstract class EventoCertificado {
 		  EstruturaComercial estruturaComercial = new EstruturaComercial();
 		  Empresa empresa = new Empresa();
 		  empresa.setNome(certificado.getNomRemunerado());
-		  //empresa.setCNPJ("34.020.354/0001-10");
+		  empresa.setDescricao(certificado.getNomRemunerado());
+		  empresa.setCNPJ(certificado.getNumCpfCnpjRemunerado().toString());
 		  empresa.setTipoRelacionamentoComercial("corretora");
 		  empresa.setCodigo(certificado.getCodRemunerado().toString());
-		  empresa.setCodigoNegocio(certificado.getCodSusep());		  
+		  empresa.setCodigoNegocio(certificado.getCodSusep());	
+		  empresa.setTipo("E");
 		  empresa.setSituacao("ATIVA");
+		  
+		  IdentificacaoExterna identificacaoExterna = new IdentificacaoExterna();
+		  Instituicao instituicao = new Instituicao();
+		  instituicao.setCodigo("1.232.132");
+		  instituicao.setCodigoNegocio("SUSEP201110021");
+		  instituicao.setEmpresa("SUSEP");
+		  instituicao.setDigitoVerificador("1");
+		  
+		  Qualificador qualificador = new Qualificador();
+		  qualificador.setDescricaoRamo(certificado.getNomRamo());
+		  qualificador.setRamo(certificado.getNumRamo().toString());
+		  qualificador.setGrupo(certificado.getCodGrupoSusep().toString());
+		  instituicao.setQualificador(qualificador);
+		  
+		  identificacaoExterna.setInstituicao(instituicao);
+		  empresa.setIdentificacaoExterna(identificacaoExterna);
+		  
+		  Endereco endereco = new Endereco();
+		  endereco.setLogradouro("SHN Quadra 1 Bloco E - Edifício Sede Caixa Seguradora");
+		  endereco.setBairro("Asa Norte");
+		  endereco.setCidade("Brasília");
+		  endereco.setCep("70701-050");
+		  endereco.setEstado("DF");
+		  endereco.setPais("Brasil");
+		  endereco.setNumero(" ");
+		  endereco.setComplemento("");
+		  
+		  empresa.setEndereco(endereco);
+		  
+		  CategoriaParceiro categoriaParceiro = new CategoriaParceiro();
+		  categoriaParceiro.setCodigo("1");
+		  categoriaParceiro.setValor("assistência");
+		  empresa.setCategoriaParceiro(categoriaParceiro);
 		  
 		  if(mensagem.getEstruturaComercial() == null) {
 			  mensagem.setEstruturaComercial(new ArrayList<EstruturaComercial>());			  
@@ -215,8 +272,15 @@ public abstract class EventoCertificado {
 			  mensagem.setClientes(new ArrayList<Clientes>());
 		  }
 		  Clientes clientes = new Clientes();
+		  
+		  TipoCliente tipoCliente = new TipoCliente();
+		  tipoCliente.setCodigo("1");
+		  tipoCliente.setDescricao("Segurado");
+		  clientes.setTipoCliente(tipoCliente);
+		  
 		  Pessoa pessoa = new Pessoa();
 		  pessoa.setNome(certificado.getNomEstipulante());
+		  pessoa.setDataNascimento(Util.dateToStringUtc(new Date())); //DATA FORÇADA POR NÃO HAVER REGISTRO NA BASE QUANDO FOR PJ 
 		  
 		  PessoaId identificacao = new PessoaId();
 		  identificacao.setTipo("J");
@@ -437,6 +501,7 @@ public abstract class EventoCertificado {
 		  
 		  cobranca.getOpcoes().add(opcoes);
 		  cobranca.setAdesao(adesao);
+		  cobranca.setPlano(plano);
 		  mensagem.setCobranca(cobranca);
 	  }
 	  
@@ -480,17 +545,41 @@ public abstract class EventoCertificado {
 	  
 	  private static Cobertura getMip(Certificado certificado) {
 		  Cobertura  coberMip = new Cobertura();
+		  
+		  CoberturaIdExterna identificacaoExterna = new CoberturaIdExterna();
+		  identificacaoExterna.setCodigo("244");
+		  identificacaoExterna.setCodigoNegocio("1");
+		  identificacaoExterna.setEmpresa("SUSEP");
+		  
+		  Qualificador qualificador = new Qualificador();
+		  qualificador.setDescricaoRamo(certificado.getNomRamo());
+		  qualificador.setRamo(certificado.getNumRamo().toString());
+		  qualificador.setGrupo(certificado.getCodGrupoSusep().toString());
+		  identificacaoExterna.setQualificador(qualificador);
+
+		  coberMip.setIdentificacaoExterna(identificacaoExterna);
+		  
+		  Tipo tipo = new Tipo();
+		  tipo.setCodigo("A");
+		  tipo.setDescricao("");
+		  
+		  coberMip.setTipo(tipo);
+		  
 		  RamoCaixaSeguradora ramoCaixaSeguradora = new RamoCaixaSeguradora();
 		  ramoCaixaSeguradora.setCodigo(certificado.getRamoMpi().toString());
 		  coberMip.setRamoCaixaSeguradora(ramoCaixaSeguradora);
+		  coberMip.setCodigoCobertura(certificado.getRamoMpi().toString());
+		  coberMip.setNome("Morte Invalidez Permanente");
+		  coberMip.setDescricao("Morte Invalidez Permanente");
+		  coberMip.setSigla("MIP");
 		  
-		  coberMip.setDescricao("MIP/ Morte Inval. Permanente");
-		  coberMip.setValorCustoEfetivoSH(certificado.getVlrCesh().toString());
+		  coberMip.setValorCustoEfetivoSH(certificado.getVlrCesh().toString()); //SERÁ REMOVIDO
 		  
 		  LimiteIndenizacao limiteIndenizacao = new LimiteIndenizacao();
+		  limiteIndenizacao.setValorMinimo(BigDecimal.ZERO.toString());
 		  limiteIndenizacao.setValorMaximo(certificado.getVlrImpSegMip().toString());
 		  coberMip.setLimiteIndenizacao(limiteIndenizacao);
-		  
+
 		  coberMip.setPremioLiquidoCobertura(certificado.getVlrPremioMip().toString());
 		  coberMip.setAdicionalFracionamentoCobertura(BigDecimal.ZERO.toString());
 		  coberMip.setTributacao(new ArrayList<Tributacao>());
@@ -510,13 +599,36 @@ public abstract class EventoCertificado {
 	  
 	  private static Cobertura getDfi(Certificado certificado) {
 		  Cobertura  coberDfi = new Cobertura();
+		  
+		  CoberturaIdExterna identificacaoExterna = new CoberturaIdExterna();
+		  identificacaoExterna.setCodigo("244");
+		  identificacaoExterna.setCodigoNegocio("2");
+		  identificacaoExterna.setEmpresa("SUSEP");
+		  
+		  Qualificador qualificador = new Qualificador();
+		  qualificador.setDescricaoRamo(certificado.getNomRamo());
+		  qualificador.setRamo(certificado.getNumRamo().toString());
+		  qualificador.setGrupo(certificado.getCodGrupoSusep().toString());
+		  identificacaoExterna.setQualificador(qualificador);
+		  coberDfi.setIdentificacaoExterna(identificacaoExterna);
+		  
+		  Tipo tipo = new Tipo();
+		  tipo.setCodigo("A");
+		  tipo.setDescricao("");
+		  
+		  coberDfi.setTipo(tipo);
+		  
 		  RamoCaixaSeguradora ramoCaixaSeguradoraDfi = new RamoCaixaSeguradora();
 		  ramoCaixaSeguradoraDfi.setCodigo(certificado.getRamoDfi().toString());
 		  coberDfi.setRamoCaixaSeguradora(ramoCaixaSeguradoraDfi);
 		  
-		  coberDfi.setDescricao("DFI/Dano Físico ao Imóvel");
-		  
+		  coberDfi.setCodigoCobertura(certificado.getRamoDfi().toString());
+		  coberDfi.setNome("Danos Físicos ao Imóvel");
+		  coberDfi.setDescricao("Danos Físicos ao Imóvel");
+		  coberDfi.setSigla("DFI");
+		  		  
 		  LimiteIndenizacao limiteIndenizacaoDfi = new LimiteIndenizacao();
+		  limiteIndenizacaoDfi.setValorMinimo(BigDecimal.ZERO.toString());
 		  limiteIndenizacaoDfi.setValorMaximo(certificado.getVlrImpSegDfi().toString());
 		  coberDfi.setLimiteIndenizacao(limiteIndenizacaoDfi);
 		  

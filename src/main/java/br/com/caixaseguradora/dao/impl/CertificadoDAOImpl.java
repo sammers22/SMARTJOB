@@ -120,7 +120,7 @@ public class CertificadoDAOImpl implements CertificadoDAO {
 	 public  List<Certificado> recuperarCertificado(Integer numContrato) {
 		 String sql = "SELECT DISTINCT A.COD_PROC_SUSEP, A.NUM_APOLICE,OC.NUM_CERTIFICADO, CS.NUM_CONTRATO,OC.DTA_EMISSAO, OC.DTA_INI_VIGENCIA, OC.DTA_FIM_VIGENCIA,"+
 		 " CT.NUM_CONTRATO_TERC, ct.NUM_DV_CONTR_TERC,"+
-		 " ARP.NOM_RAZ_SOCIAL AS nomRemunerado, AR.COD_REMUNERADO, AR.COD_SUSEP,"+
+		 " ARP.NOM_RAZ_SOCIAL AS nomRemunerado, AR.COD_REMUNERADO, AR.COD_SUSEP, ARP.NUM_CPF_CNPJ as numCpfCnpjRemunerado, "+
 		 " PE.NOM_RAZ_SOCIAL AS nomEstipulante, PE.NUM_CPF_CNPJ AS cpfCpnjEstip, ENDER.NOM_LOGRADOURO AS NOM_LOGRADOURO_ESTIP, ENDER.NUM_LOGRADOURO AS NUM_LOGRADOURO_ESTIP,"+
 		 " ENDER.NOM_BAIRRO AS NOM_BAIRRO_ESTIP, ENDER.NOM_CIDADE AS NOM_CIDADE_ESTIP, ENDER.COD_CEP AS COD_CEP_ESTIP, ENDER.COD_UF AS COD_UF_ESTIP,"+
 		 " E.NUM_ENDERECO AS NUM_ENDERECO_SEGURADO, E.NOM_LOGRADOURO AS NOM_LOGRADOURO_SEGURADO, E.NUM_LOGRADOURO AS NUM_LOGRADOURO_SEGURADO,"+
@@ -159,29 +159,29 @@ public class CertificadoDAOImpl implements CertificadoDAO {
 		 List<Certificado> certificado = simpleJdbcTemplate.query(sql, ParameterizedBeanPropertyRowMapper.newInstance(Certificado.class));
 
 		 for (Certificado cert : certificado) {
-		 List<Segurado> segurados = recuperarSegurados(cert.getNumContrato(), cert.getNumCertificado(), cert.getSeqObjCertif());
-		 for (Segurado seg : segurados) {
-			 seg.setTelefones(recuperarTelefones(seg.getNumPessoa()));
-			 seg.setEmails(recuperarEmails(seg.getNumPessoa()));
-		 }
-		 cert.setSegurados(segurados);
-		 cert.setPremioEndosso(recuperarPremioEndosso(numContrato));  
-		 cert.setBancariosEstip(recuperarDadosBancarios(cert.getNumPesEstip()));
-		 
-		 if((cert.getVlrImpSegDfc() == null || cert.getVlrImpSegDfc().compareTo(BigDecimal.ZERO) == 0)
-		    && (cert.getVlrPremioDfc() == null || cert.getVlrPremioDfc().compareTo(BigDecimal.ZERO) == 0)
-		     && (cert.getVlrIofDfc() == null || cert.getVlrIofDfc().compareTo(BigDecimal.ZERO) == 0)) {
-		     cert.setCertificadoDFC(false);
-		 }else {
-		     cert.setCertificadoDFC(true);
-		 }
-		 if(cert.isCertificadoDFC() == true) {
-		     cert.setRamoDfc(14);
-		 }else {
-		     cert.setRamoMpi(recuperarRamo(cert.getNumRamo(), 1));
-		     cert.setRamoDfi(recuperarRamo(cert.getNumRamo(), 2));
-		     }
-		 }
+			 List<Segurado> segurados = recuperarSegurados(cert.getNumContrato(), cert.getNumCertificado(), cert.getSeqObjCertif());
+			 for (Segurado seg : segurados) {
+				 seg.setTelefones(recuperarTelefones(seg.getNumPessoa()));
+				 seg.setEmails(recuperarEmails(seg.getNumPessoa()));
+			 }
+			 cert.setSegurados(segurados);
+			 cert.setPremioEndosso(recuperarPremioEndosso(numContrato));  
+			 cert.setBancariosEstip(recuperarDadosBancarios(cert.getNumPesEstip()));
+			 
+			 if((cert.getVlrImpSegDfc() == null || cert.getVlrImpSegDfc().compareTo(BigDecimal.ZERO) == 0)
+			    && (cert.getVlrPremioDfc() == null || cert.getVlrPremioDfc().compareTo(BigDecimal.ZERO) == 0)
+			     && (cert.getVlrIofDfc() == null || cert.getVlrIofDfc().compareTo(BigDecimal.ZERO) == 0)) {
+			     cert.setCertificadoDFC(false);
+			 }else {
+			     cert.setCertificadoDFC(true);
+			 }
+			 if(cert.isCertificadoDFC() == true) {
+			     cert.setRamoDfc(14);
+			 }else {
+			     cert.setRamoMpi(recuperarRamo(cert.getNumRamo(), 1));
+			     cert.setRamoDfi(recuperarRamo(cert.getNumRamo(), 2));
+			     }
+			 }
 
 		 return certificado;
 		 }	

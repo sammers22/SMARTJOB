@@ -69,7 +69,15 @@ public class Certificado {
 	private DadosBancariosDTO bancariosEstip;
 	private PremioEndosso premioEndosso;
 	private List<Segurado> segurados;
+	private Long numCpfCnpjRemunerado;
 	
+	
+	public Long getNumCpfCnpjRemunerado() {
+		return numCpfCnpjRemunerado;
+	}
+	public void setNumCpfCnpjRemunerado(Long numCpfCnpjRemunerado) {
+		this.numCpfCnpjRemunerado = numCpfCnpjRemunerado;
+	}
 	public String getCodProcSusep() {
 		return codProcSusep;
 	}

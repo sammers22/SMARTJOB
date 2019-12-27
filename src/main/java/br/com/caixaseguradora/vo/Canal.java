@@ -26,7 +26,7 @@ public class Canal implements Serializable {
 	 * @param tipo
 	 * @param descricao
 	 */
-	public Canal(String codigo, String nome, String tipo, String descricao) {
+	public Canal (String codigo, String nome, String tipo, String descricao) {
 		super();
 		this.codigo = codigo;
 		this.nome = nome;

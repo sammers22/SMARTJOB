@@ -173,8 +173,10 @@ public class CertificadoDAOImpl implements CertificadoDAO {
 			 if((cert.getVlrImpSegDfc() == null || cert.getVlrImpSegDfc().compareTo(BigDecimal.ZERO) == 0)
 			    && (cert.getVlrPremioDfc() == null || cert.getVlrPremioDfc().compareTo(BigDecimal.ZERO) == 0)
 			     && (cert.getVlrIofDfc() == null || cert.getVlrIofDfc().compareTo(BigDecimal.ZERO) == 0)) {
+				 System.out.println( "não é DFC");
 			     cert.setCertificadoDFC(false);
 			 }else {
+				 System.out.println( "é DFC");
 			     cert.setCertificadoDFC(true);
 			 }
 			 if(cert.isCertificadoDFC() == true) {

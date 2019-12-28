@@ -723,7 +723,7 @@ public abstract class EventoCertificado {
 		  
 		  CoberturaIdExterna identificacaoExterna = new CoberturaIdExterna();
 		  identificacaoExterna.setCodigo("244");
-		  identificacaoExterna.setCodigoNegocio("3");
+		  identificacaoExterna.setCodigoNegocio("8");
 		  identificacaoExterna.setEmpresa("SUSEP");
 		  
 		  Qualificador qualificador = new Qualificador();
@@ -740,28 +740,28 @@ public abstract class EventoCertificado {
 		  coberDfc.setTipo(tipo);
 		  
 		  RamoCaixaSeguradora ramoCaixaSeguradoraDfc = new RamoCaixaSeguradora();
-		  ramoCaixaSeguradoraDfc.setCodigo(certificado.getRamoDfi().toString());
+		  ramoCaixaSeguradoraDfc.setCodigo(certificado.getRamoDfc().toString());
 		  coberDfc.setRamoCaixaSeguradora(ramoCaixaSeguradoraDfc);
 		  
-		  coberDfc.setCodigoCobertura(certificado.getRamoDfi().toString());
+		  coberDfc.setCodigoCobertura(certificado.getRamoDfc().toString());
 		  coberDfc.setNome("Danos Físicos ao Conteúdo");
 		  coberDfc.setDescricao("Danos Físicos ao Conteúdo");
 		  coberDfc.setSigla("DFC");
 		  		  
-		  LimiteIndenizacao limiteIndenizacaoDfi = new LimiteIndenizacao();
-		  limiteIndenizacaoDfi.setValorMinimo(BigDecimal.ZERO.toString());
-		  limiteIndenizacaoDfi.setValorMaximo(certificado.getVlrImpSegDfc().toString());
-		  coberDfc.setLimiteIndenizacao(limiteIndenizacaoDfi);
+		  LimiteIndenizacao limiteIndenizacao = new LimiteIndenizacao();
+		  limiteIndenizacao.setValorMinimo(BigDecimal.ZERO.toString());
+		  limiteIndenizacao.setValorMaximo(certificado.getVlrImpSegDfc().toString());
+		  coberDfc.setLimiteIndenizacao(limiteIndenizacao);
 		  
 		  coberDfc.setPremioLiquidoCobertura(certificado.getVlrPremioDfc().toString());
 		  coberDfc.setAdicionalFracionamentoCobertura(BigDecimal.ZERO.toString());
 		  coberDfc.setTributacao(new ArrayList<Tributacao>());
 		  
 		  Tributacao tributacaoDfc = new Tributacao();
-		  tributacaoDfc.setValor(certificado.getVlrIofDfi().toString());
+		  tributacaoDfc.setValor(certificado.getVlrIofDfc().toString());
 		  coberDfc.getTributacao().add(tributacaoDfc);
 		  
-		  coberDfc.setPremioTotalCobertura((certificado.getVlrPremioDfi().add(certificado.getVlrIofDfi())).toString());
+		  coberDfc.setPremioTotalCobertura((certificado.getVlrPremioDfc().add(certificado.getVlrIofDfc())).toString());
 		  
 		  Franquia franquiaDfc = new Franquia();
 		  franquiaDfc.setValor(BigDecimal.ZERO.toString());

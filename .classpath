@@ -57,7 +57,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Sueidy Gonçalves/Downloads/db2jcc_10.5fp8.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Sueidy Gonçalves/Downloads/db2jcc_license_cisuz.jar"/>
+	<classpathentry kind="lib" path="K:/JAVA/DB2/db2jcc_10.5fp8.jar"/>
+	<classpathentry kind="lib" path="K:/JAVA/DB2/db2jcc_license_cisuz.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

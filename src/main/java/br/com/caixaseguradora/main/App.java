@@ -1,4 +1,6 @@
-package com.mkyong;
+package br.com.caixaseguradora.main;
+
+import java.util.Date;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -9,16 +11,29 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
+//@SpringBootApplication
+//@EnableScheduling
 public class App {
 	
 	ApplicationContext context = new ClassPathXmlApplicationContext(jobArqXml());
 	
 	public static void main(String[] args) {
+		System.out.println("iniciou");
+		//SpringApplication.run(App.class, args);
 		App obj = new App();
 		obj.run();
+	}
+	
+	@Scheduled(cron = "0 */1 * * * ?")
+	public void imprimir() {
+		System.out.println(new Date());
 	}
 
 	private void run() {

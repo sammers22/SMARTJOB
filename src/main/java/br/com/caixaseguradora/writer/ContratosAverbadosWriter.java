@@ -1,12 +1,21 @@
 package br.com.caixaseguradora.writer;
 
 import java.math.BigDecimal;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import br.com.caixaseguradora.dao.CertificadoDAO;
 import br.com.caixaseguradora.json.EventoCertificado;
@@ -46,23 +55,49 @@ import br.com.caixaseguradora.vo.VigenciaContrato;
 public class ContratosAverbadosWriter extends ItemStreamSupport implements ItemWriter<ContratosAverbados> {
 
 	private CertificadoDAO dao;
-	  
-	  public void write(List<? extends ContratosAverbados> contratos) {
-	    for (ContratosAverbados contr : contratos) {
-	    	System.out.println(contr.getNumContrato());
-	    	List<Certificado> certificados =  dao.recuperarCertificado(contr.getNumContrato());
-	    	for (Certificado certificado : certificados) {
-	    		
-	    		System.out.println(certificado);		    		
-	    		String certJson = EventoCertificado.eventoCertificadoMipDfi(certificado);
-	    		System.out.println(certJson);
+
+	public void write(List<? extends ContratosAverbados> contratos) {
+		for (ContratosAverbados contr : contratos) {
+			System.out.println(contr.getNumContrato());
+			List<Certificado> certificados = dao.recuperarCertificado(contr.getNumContrato());
+			for (Certificado certificado : certificados) {
+
+				System.out.println(certificado);
+				String certJson = EventoCertificado.eventoCertificadoMipDfi(certificado);
+				System.out.println(certJson);
+
+				try {
+					postEventoCertificado(certJson);
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				}
 			}
-	    }
-	  }
-	  
-	  public void setDao(CertificadoDAO dao) {
-	    this.dao = dao;
-	  }
-	  
+		}
+	}
+
+	public void setDao(CertificadoDAO dao) {
+		this.dao = dao;
+	}
+
+	public void postEventoCertificado(String certJson) throws UnknownHostException {
+		ResponseEntity<String> response = null;
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			final String url = "http://localhost:9080/cron/";
+			final HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+			headers.setContentType((MediaType.APPLICATION_JSON));
+			
+			HttpEntity<String> entity = new HttpEntity<String>(certJson, headers);
+			response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+			System.out.println(response.getStatusCode());
+			
+		} catch (HttpClientErrorException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println(response.getStatusCode());
+			e.printStackTrace();
+		}
+	}
 
 }

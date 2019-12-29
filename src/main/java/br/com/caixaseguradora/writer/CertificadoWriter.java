@@ -2,12 +2,18 @@ package br.com.caixaseguradora.writer;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.math.Fraction;
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
 
@@ -52,6 +58,7 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 	private CertificadoDAO dao;
 	  
 	  public void write(List<? extends Certificado> certificados) {
+    	
 	    for (Certificado cert : certificados) {
 	    	if((cert.getVlrImpSegDfc() == null || cert.getVlrImpSegDfc().compareTo(BigDecimal.ZERO) == 0)
 	    			&& (cert.getVlrPremioDfc() == null || cert.getVlrPremioDfc().compareTo(BigDecimal.ZERO) == 0)
@@ -69,8 +76,10 @@ public class CertificadoWriter extends ItemStreamSupport implements ItemWriter<C
 	    	
 	    	List<Segurado> segurados = dao.recuperarSegurados(cert.getNumContrato(), cert.getNumCertificado(), cert.getSeqObjCertif());
 	    	cert.setSegurados(segurados);
-
 	    	System.out.println(cert);
+	    	
+
+	    	
 
 	    }
 	  }
